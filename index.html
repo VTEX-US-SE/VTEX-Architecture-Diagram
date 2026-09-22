@@ -1,3 +1,7 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
 <title>VTEX Constellation</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -79,6 +83,18 @@
   .brand .brand-sep{width:1px; height:16px; background:var(--glass-line);}
   .brand .word{font-family:var(--font-display); font-weight:700; font-size:16px; letter-spacing:.01em; color:var(--steel);}
   .hud-right{display:flex; align-items:center; gap:10px;}
+  .lang-switch{
+    display:flex; padding:3px; border-radius:999px;
+    background:rgba(238,240,251,.04); border:1px solid var(--glass-line);
+  }
+  .lang-btn{
+    font-family:var(--font-body); font-weight:600; font-size:11.5px; letter-spacing:.04em;
+    color:var(--steel); background:transparent; border:0; cursor:pointer;
+    padding:5px 11px; border-radius:999px; line-height:1;
+    transition:color .15s ease, background .15s ease;
+  }
+  .lang-btn:hover{color:var(--mist);}
+  .lang-btn.is-on{color:var(--mist); background:rgba(238,240,251,.1);}
   .sync-icon{
     width:17px; height:17px; color:var(--steel); cursor:pointer; border-radius:50%;
     padding:6px; box-sizing:content-box; transition:color .15s ease, background .15s ease;
@@ -138,6 +154,7 @@
   .pillar h3{
     font-family:var(--font-body); font-weight:600; font-size:13px; color:var(--mist);
     margin:0 0 11px; display:flex; align-items:center; gap:6px;
+    cursor:pointer; user-select:none;
   }
   .chips{display:grid; gap:8px; flex:1; grid-auto-rows:1fr;}
   .chips.cols-3{grid-template-columns:repeat(3,1fr);}
@@ -163,7 +180,7 @@
   .admin-dev{flex:1; display:flex; padding:0;}
   .admin-dev .section{flex:1; display:flex; align-items:center; gap:16px; padding:16px 20px;}
   .admin-dev .divider{width:1px; background:var(--glass-line); margin:14px 0;}
-  .section-label{flex:0 0 128px; display:flex; align-items:center; gap:6px; font-family:var(--font-body); font-weight:600; font-size:14px; color:var(--mist); line-height:1.2;}
+  .section-label{flex:0 0 128px; display:flex; align-items:center; gap:6px; font-family:var(--font-body); font-weight:600; font-size:14px; color:var(--mist); line-height:1.2; cursor:pointer; user-select:none;}
   .section-chips{flex:1; display:grid; grid-template-columns:repeat(4,1fr); gap:9px;}
   .tool{
     display:flex; flex-direction:column; align-items:flex-start; justify-content:center; gap:8px; padding:11px 12px; border-radius:11px;
@@ -181,7 +198,7 @@
      ========================================================= */
   .row-c{margin-top:16px; display:grid; grid-template-columns:repeat(9,1fr); gap:10px;}
   .stack-tile{
-    padding:14px 8px 13px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:9px; text-align:center; min-height:104px;
+    padding:11px 8px 10px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:7px; text-align:center; min-height:76px;
     cursor:pointer; transition:transform .15s ease, box-shadow .15s ease, border-color .15s ease;
   }
   .stack-tile .icon-wrap{width:28px; height:28px; border-radius:8px; background:rgba(238,240,251,.06); border:1px solid var(--glass-line); display:flex; align-items:center; justify-content:center;}
@@ -225,6 +242,7 @@
     background:linear-gradient(rgba(238,240,251,.02), rgba(238,240,251,.02)), color-mix(in srgb, var(--pc) 20%, rgba(20,22,34,.6));
     box-shadow:0 0 0 1px var(--pc), 0 0 18px color-mix(in srgb, var(--pc) 55%, transparent);
   }
+  .policy-toggle.is-lang-hidden{display:none;}
 
   /* every diagram node gets a tinted-glass wash layer; JS sets its background
      (one policy color, or a smooth blend of several) and fades it in/out.
@@ -239,7 +257,8 @@
   /* the canvas above is fixed-size and scaled to fit via JS (#slide-viewport/#slide),
      so the layout never reflows — it keeps the same horizontal-slide shape at any size. */
 </style>
-
+</head>
+<body>
 <div id="slide-viewport">
 <div id="slide">
 <div class="cosmos">
@@ -287,12 +306,16 @@
       <span class="word">Constellation</span>
     </div>
     <div class="hud-right">
-      <svg id="hudRefresh" class="sync-icon" viewBox="0 0 24 24" title="Reset diagram"><use href="#i-refresh"/></svg>
+      <div class="lang-switch" role="group" aria-label="Language">
+        <button type="button" class="lang-btn is-on" data-lang="en" aria-pressed="true">EN</button>
+        <button type="button" class="lang-btn" data-lang="pt" aria-pressed="false">PT</button>
+      </div>
+      <svg id="hudRefresh" class="sync-icon" viewBox="0 0 24 24" data-i18n-title="resetTitle" title="Reset diagram"><use href="#i-refresh"/></svg>
     </div>
   </header>
 
   <div class="policy-bar glass">
-    <span class="label">Sales Channel</span>
+    <span class="label" data-i18n="salesChannel">Sales Channel</span>
     <div class="policy-toggles">
       <div class="policy-toggle" id="polToggle-b2b" data-policy="b2b" style="--pc:var(--pol-b2b)">
         <span class="dot"></span>B2B
@@ -300,7 +323,7 @@
       <div class="policy-toggle" id="polToggle-b2c" data-policy="b2c" style="--pc:var(--pol-b2c)">
         <span class="dot"></span>B2C
       </div>
-      <div class="policy-toggle" id="polToggle-meli" data-policy="meli" style="--pc:var(--pol-meli)">
+      <div class="policy-toggle is-lang-hidden" id="polToggle-meli" data-policy="meli" data-lang-only="pt" style="--pc:var(--pol-meli)">
         <span class="dot"></span>Mercado Livre
       </div>
       <div class="policy-toggle" id="polToggle-whatsapp" data-policy="whatsapp" style="--pc:var(--pol-whatsapp)">
@@ -315,11 +338,11 @@
     <div class="rail">
       <div class="glass rail-tile" id="satAds" data-node="vtex-ads-platform">
         <div class="icon-wrap"><svg><use href="#i-megaphone"/></svg></div>
-        <div class="name">VTEX Ads Platform</div>
+        <div class="name" data-i18n="vtexAdsPlatform">VTEX Ads Platform</div>
       </div>
       <div class="glass rail-tile" id="satApp" data-node="sales-app">
         <div class="icon-wrap"><svg><use href="#i-store"/></svg></div>
-        <div class="name">Sales App</div>
+        <div class="name" data-i18n="salesApp">Sales App</div>
       </div>
     </div>
 
@@ -327,40 +350,40 @@
       <div class="core-grid">
         <div class="core-col">
           <div class="pillar">
-            <h3><svg class="info-dot"><use href="#i-info"/></svg>Digital Commerce</h3>
+            <h3><svg class="info-dot"><use href="#i-info"/></svg><span data-i18n="digitalCommerce">Digital Commerce</span></h3>
             <div class="chips cols-3">
-              <div class="chip" data-node="catalog">Catalog</div><div class="chip" data-node="pricing">Pricing</div><div class="chip" data-node="checkout">Checkout</div>
-              <div class="chip" data-node="promotions">Promotions</div><div class="chip" data-node="payment-gateway">Payment Gateway</div><div class="chip" data-node="channel-management">Channel Management</div>
+              <div class="chip" data-node="catalog" data-i18n="catalog">Catalog</div><div class="chip" data-node="pricing" data-i18n="pricing">Pricing</div><div class="chip" data-node="checkout" data-i18n="checkout">Checkout</div>
+              <div class="chip" data-node="promotions" data-i18n="promotions">Promotions</div><div class="chip" data-node="payment-gateway" data-i18n="paymentGateway">Payment Gateway</div><div class="chip" data-node="channel-management" data-i18n="channelManagement">Channel Management</div>
             </div>
           </div>
           <div class="pillar">
-            <h3><svg class="info-dot"><use href="#i-info"/></svg>B2B Commerce</h3>
+            <h3><svg class="info-dot"><use href="#i-info"/></svg><span data-i18n="b2bCommerce">B2B Commerce</span></h3>
             <div class="chips cols-3">
-              <div class="chip" data-node="b2b-organizations">B2B Organizations</div><div class="chip" data-node="b2b-quotes-carts">B2B Quotes &amp; Carts</div><div class="chip" data-node="quick-order">Quick Order</div>
-              <div class="chip" data-node="b2b-checkout">B2B Checkout</div><div class="chip" data-node="cost-centers">Cost Centers</div><div class="chip" data-node="roles-permissions">Roles and Permissions</div>
+              <div class="chip" data-node="b2b-organizations" data-i18n="b2bOrganizations">B2B Organizations</div><div class="chip" data-node="b2b-quotes-carts" data-i18n="b2bQuotesCarts">B2B Quotes &amp; Carts</div><div class="chip" data-node="quick-order" data-i18n="quickOrder">Quick Order</div>
+              <div class="chip" data-node="b2b-checkout" data-i18n="b2bCheckout">B2B Checkout</div><div class="chip" data-node="cost-centers" data-i18n="costCenters">Cost Centers</div><div class="chip" data-node="roles-permissions" data-i18n="rolesPermissions">Roles and Permissions</div>
             </div>
           </div>
         </div>
         <div class="core-col">
           <div class="pillar">
-            <h3><svg class="info-dot"><use href="#i-info"/></svg>Experience Management</h3>
+            <h3><svg class="info-dot"><use href="#i-info"/></svg><span data-i18n="experienceManagement">Experience Management</span></h3>
             <div class="chips cols-4">
-              <div class="chip" data-node="headless-cms">Headless CMS</div><div class="chip" data-node="intelligent-search">Intelligent Search</div>
-              <div class="chip" data-node="pwa-application">PWA Application</div><div class="chip" data-node="storefront-application">Storefront Application</div>
+              <div class="chip" data-node="headless-cms" data-i18n="headlessCms">CMS</div><div class="chip" data-node="intelligent-search" data-i18n="intelligentSearch">Intelligent Search</div>
+              <div class="chip" data-node="pwa-application" data-i18n="pwaApplication">PWA Application</div><div class="chip" data-node="storefront-application" data-i18n="storefrontApplication">Storefront Application</div>
             </div>
           </div>
           <div class="pillar">
-            <h3><svg class="info-dot"><use href="#i-info"/></svg>Distributed Order Mgmt</h3>
+            <h3><svg class="info-dot"><use href="#i-info"/></svg><span data-i18n="distributedOrderMgmt">Distributed Order Mgmt</span></h3>
             <div class="chips cols-4">
-              <div class="chip" data-node="inventory-management">Inventory Management</div><div class="chip" data-node="order-allocation">Order Allocation</div>
-              <div class="chip" data-node="delivery-promise">Delivery Promise</div><div class="chip" data-node="logistics">Logistics</div>
+              <div class="chip" data-node="inventory-management" data-i18n="inventoryManagement">Inventory Management</div><div class="chip" data-node="order-allocation" data-i18n="orderAllocation">Order Allocation</div>
+              <div class="chip" data-node="delivery-promise" data-i18n="deliveryPromise">Delivery Promise</div><div class="chip" data-node="logistics" data-i18n="logistics">Logistics</div>
             </div>
           </div>
           <div class="pillar">
-            <h3><svg class="info-dot"><use href="#i-info"/></svg>Marketplace Management</h3>
-            <div class="chips cols-4">
-              <div class="chip" data-node="seller-management">Seller Management</div><div class="chip" data-node="offer-quality-management">Offer Quality &amp; Management</div>
-              <div class="chip" data-node="marketplace-network">Marketplace Network</div><div class="chip" data-node="seller-portal">Seller Portal</div>
+            <h3><svg class="info-dot"><use href="#i-info"/></svg><span data-i18n="marketplaceManagement">Marketplace Management</span></h3>
+            <div class="chips cols-3">
+              <div class="chip" data-node="seller-management" data-i18n="sellerManagement">Seller Management</div><div class="chip" data-node="offer-quality-management" data-i18n="offerQualityManagement">Offer Quality &amp; Management</div>
+              <div class="chip" data-node="marketplace-network" data-i18n="marketplaceNetwork">Marketplace Network</div>
             </div>
           </div>
         </div>
@@ -370,15 +393,15 @@
     <div class="rail">
       <div class="glass rail-tile is-blue" id="satCX" data-node="vtex-cx-platform">
         <div class="icon-wrap"><svg><use href="#i-chat"/></svg></div>
-        <div class="name">VTEX CX Platform</div>
+        <div class="name" data-i18n="vtexCxPlatform">VTEX CX Platform</div>
       </div>
       <div class="glass rail-tile is-blue" id="satPipeline" data-node="vtex-data-pipeline">
         <div class="icon-wrap"><svg><use href="#i-database"/></svg></div>
-        <div class="name">VTEX Data Pipeline</div>
+        <div class="name" data-i18n="vtexDataPipeline">VTEX Data Pipeline</div>
       </div>
       <div class="glass rail-tile is-blue" id="satShield" data-node="vtex-shield">
         <div class="icon-wrap"><svg><use href="#i-shield"/></svg></div>
-        <div class="name">VTEX Shield</div>
+        <div class="name" data-i18n="vtexShield">VTEX Shield</div>
       </div>
     </div>
 
@@ -389,28 +412,28 @@
     <div class="rail-b">
       <div class="glass rail-tile" data-node="third-party-marketplaces">
         <div class="icon-wrap"><svg><use href="#i-grid"/></svg></div>
-        <div class="name">Third-party Marketplaces</div>
+        <div class="name" data-i18n="thirdPartyMarketplaces">Third-party Marketplaces</div>
       </div>
     </div>
 
     <div class="glass admin-dev">
       <div class="section">
-        <div class="section-label"><svg class="info-dot"><use href="#i-info"/></svg>Admin</div>
+        <div class="section-label"><svg class="info-dot"><use href="#i-info"/></svg><span data-i18n="admin">Admin</span></div>
         <div class="section-chips">
-          <div class="tool" data-node="dashboard-analytics"><svg><use href="#i-dashboard"/></svg><span class="name">Dashboard &amp; Analytics</span></div>
-          <div class="tool" data-node="releases"><svg><use href="#i-refresh"/></svg><span class="name">Releases</span></div>
-          <div class="tool" data-node="user-account-mgmt"><svg><use href="#i-keyuser"/></svg><span class="name">User &amp; Account Mgmt.</span></div>
-          <div class="tool featured" data-node="extensions-hub"><svg><use href="#i-plug"/></svg><span class="name">Extensions Hub</span></div>
+          <div class="tool" data-node="dashboard-analytics"><svg><use href="#i-dashboard"/></svg><span class="name" data-i18n="dashboardAnalytics">Dashboard &amp; Analytics</span></div>
+          <div class="tool" data-node="releases"><svg><use href="#i-refresh"/></svg><span class="name" data-i18n="releases">Releases</span></div>
+          <div class="tool" data-node="user-account-mgmt"><svg><use href="#i-keyuser"/></svg><span class="name" data-i18n="userAccountMgmt">User &amp; Account Mgmt.</span></div>
+          <div class="tool featured" data-node="extensions-hub"><svg><use href="#i-plug"/></svg><span class="name" data-i18n="extensionsHub">Extensions Hub</span></div>
         </div>
       </div>
       <div class="divider"></div>
       <div class="section">
-        <div class="section-label"><svg class="info-dot"><use href="#i-info"/></svg>Developer Tooling</div>
+        <div class="section-label"><svg class="info-dot"><use href="#i-info"/></svg><span data-i18n="developerTooling">Developer Tooling</span></div>
         <div class="section-chips">
-          <div class="tool" data-node="storefront-platform"><svg><use href="#i-cloud"/></svg><span class="name">Storefront Platform</span></div>
-          <div class="tool" data-node="apis"><svg><use href="#i-api"/></svg><span class="name">APIs</span></div>
-          <div class="tool" data-node="masterdata-mgmt"><svg><use href="#i-stack"/></svg><span class="name">Masterdata Mgmt.</span></div>
-          <div class="tool featured" data-node="app-platform"><svg><use href="#i-window"/></svg><span class="name">App Platform</span></div>
+          <div class="tool" data-node="storefront-platform"><svg><use href="#i-cloud"/></svg><span class="name" data-i18n="storefrontPlatform">Storefront Platform</span></div>
+          <div class="tool" data-node="apis"><svg><use href="#i-api"/></svg><span class="name" data-i18n="apis">APIs</span></div>
+          <div class="tool" data-node="masterdata-mgmt"><svg><use href="#i-stack"/></svg><span class="name" data-i18n="masterdataMgmt">Masterdata Mgmt.</span></div>
+          <div class="tool featured" data-node="app-platform"><svg><use href="#i-window"/></svg><span class="name" data-i18n="appPlatform">App Platform</span></div>
         </div>
       </div>
     </div>
@@ -418,31 +441,31 @@
     <div class="rail-b">
       <div class="glass rail-tile is-blue" data-node="other-channels">
         <div class="icon-wrap"><svg><use href="#i-terminal"/></svg></div>
-        <div class="name">Other Channels</div>
+        <div class="name" data-i18n="otherChannels">Other Channels</div>
       </div>
     </div>
   </div>
 
   <!-- ROW C -->
   <div class="row-c">
-    <div class="glass stack-tile" data-node="search-personalization"><div class="icon-wrap"><svg><use href="#i-search"/></svg></div><div class="name">Search &amp; Personalization</div></div>
-    <div class="glass stack-tile" data-node="marketing-analytics"><div class="icon-wrap"><svg><use href="#i-bars"/></svg></div><div class="name">Marketing &amp; Analytics</div></div>
-    <div class="glass stack-tile" data-node="payments"><div class="icon-wrap"><svg><use href="#i-card"/></svg></div><div class="name">Payments</div></div>
-    <div class="glass stack-tile" data-node="carriers"><div class="icon-wrap"><svg><use href="#i-truck"/></svg></div><div class="name">Carriers</div></div>
-    <div class="glass stack-tile" data-node="erp"><div class="icon-wrap"><svg><use href="#i-clipboard"/></svg></div><div class="name">ERP</div></div>
-    <div class="glass stack-tile" data-node="oms-wms"><div class="icon-wrap"><svg><use href="#i-box"/></svg></div><div class="name">OMS/WMS</div></div>
-    <div class="glass stack-tile" data-node="pim-cpq"><div class="icon-wrap"><svg><use href="#i-sitemap"/></svg></div><div class="name">PIM/CPQ</div></div>
-    <div class="glass stack-tile" data-node="crm"><div class="icon-wrap"><svg><use href="#i-user"/></svg></div><div class="name">CRM</div></div>
-    <div class="glass stack-tile" data-node="third-party-sellers"><div class="icon-wrap"><svg><use href="#i-grid"/></svg></div><div class="name">Third-party Sellers</div></div>
+    <div class="glass stack-tile" data-node="search-personalization"><div class="icon-wrap"><svg><use href="#i-search"/></svg></div><div class="name" data-i18n="searchPersonalization">Search &amp; Personalization</div></div>
+    <div class="glass stack-tile" data-node="marketing-analytics"><div class="icon-wrap"><svg><use href="#i-bars"/></svg></div><div class="name" data-i18n="marketingAnalytics">Marketing &amp; Analytics</div></div>
+    <div class="glass stack-tile" data-node="payments"><div class="icon-wrap"><svg><use href="#i-card"/></svg></div><div class="name" data-i18n="payments">Payments</div></div>
+    <div class="glass stack-tile" data-node="carriers"><div class="icon-wrap"><svg><use href="#i-truck"/></svg></div><div class="name" data-i18n="carriers">Carriers</div></div>
+    <div class="glass stack-tile" data-node="erp"><div class="icon-wrap"><svg><use href="#i-clipboard"/></svg></div><div class="name" data-i18n="erp">ERP</div></div>
+    <div class="glass stack-tile" data-node="oms-wms"><div class="icon-wrap"><svg><use href="#i-box"/></svg></div><div class="name" data-i18n="omsWms">OMS/WMS</div></div>
+    <div class="glass stack-tile" data-node="pim-cpq"><div class="icon-wrap"><svg><use href="#i-sitemap"/></svg></div><div class="name" data-i18n="pimCpq">PIM/CPQ</div></div>
+    <div class="glass stack-tile" data-node="crm"><div class="icon-wrap"><svg><use href="#i-user"/></svg></div><div class="name" data-i18n="crm">CRM</div></div>
+    <div class="glass stack-tile" data-node="third-party-sellers"><div class="icon-wrap"><svg><use href="#i-grid"/></svg></div><div class="name" data-i18n="thirdPartySellers">Third-party Sellers</div></div>
   </div>
 
   <div class="foot">
     <div class="legend">
-      <span><span class="swatch" style="background:var(--pink)"></span>VTEX-native module</span>
-      <span><span class="swatch" style="background:var(--blue)"></span>Admin &amp; developer tooling</span>
-      <span><span class="swatch" style="background:rgba(238,240,251,.3)"></span>Third-party / integration layer</span>
+      <span><span class="swatch" style="background:var(--pink)"></span><span data-i18n="legendNative">VTEX-native module</span></span>
+      <span><span class="swatch" style="background:var(--blue)"></span><span data-i18n="legendAdmin">Admin &amp; developer tooling</span></span>
+      <span><span class="swatch" style="background:rgba(238,240,251,.3)"></span><span data-i18n="legendThirdParty">Third-party / integration layer</span></span>
     </div>
-    <small>VTEX Constellation &mdash; internal architecture reference &middot; click any node to mark it discussed</small>
+    <small data-i18n="footerNote">VTEX Constellation &mdash; internal architecture reference &middot; click any node to mark it discussed</small>
   </div>
 
 </main>
@@ -452,10 +475,203 @@
 
 <script>
 (function(){
+  var I18N = {
+    en: {
+      salesChannel: 'Sales Channel',
+      vtexAdsPlatform: 'VTEX Ads Platform',
+      salesApp: 'Sales App',
+      digitalCommerce: 'Digital Commerce',
+      catalog: 'Catalog',
+      pricing: 'Pricing',
+      checkout: 'Checkout',
+      promotions: 'Promotions',
+      paymentGateway: 'Payment Gateway',
+      channelManagement: 'Channel Management',
+      b2bCommerce: 'B2B Commerce',
+      b2bOrganizations: 'B2B Organizations',
+      b2bQuotesCarts: 'B2B Quotes & Carts',
+      quickOrder: 'Quick Order',
+      b2bCheckout: 'B2B Checkout',
+      costCenters: 'Cost Centers',
+      rolesPermissions: 'Roles and Permissions',
+      experienceManagement: 'Experience Management',
+      headlessCms: 'CMS',
+      intelligentSearch: 'Intelligent Search',
+      pwaApplication: 'PWA Application',
+      storefrontApplication: 'Storefront Application',
+      distributedOrderMgmt: 'Distributed Order Mgmt',
+      inventoryManagement: 'Inventory Management',
+      orderAllocation: 'Order Allocation',
+      deliveryPromise: 'Delivery Promise',
+      logistics: 'Logistics',
+      marketplaceManagement: 'Marketplace Management',
+      sellerManagement: 'Seller Management',
+      offerQualityManagement: 'Offer Quality & Management',
+      marketplaceNetwork: 'Marketplace Network',
+      vtexCxPlatform: 'VTEX CX Platform',
+      vtexDataPipeline: 'VTEX Data Pipeline',
+      vtexShield: 'VTEX Shield',
+      thirdPartyMarketplaces: 'Third-party Marketplaces',
+      admin: 'Admin',
+      dashboardAnalytics: 'Dashboard & Analytics',
+      releases: 'Releases',
+      userAccountMgmt: 'User & Account Mgmt.',
+      extensionsHub: 'Extensions Hub',
+      developerTooling: 'Developer Tooling',
+      storefrontPlatform: 'Storefront Platform',
+      apis: 'APIs',
+      masterdataMgmt: 'Masterdata Mgmt.',
+      appPlatform: 'App Platform',
+      otherChannels: 'Other Channels',
+      searchPersonalization: 'Search & Personalization',
+      marketingAnalytics: 'Marketing & Analytics',
+      payments: 'Payments',
+      carriers: 'Carriers',
+      erp: 'ERP',
+      omsWms: 'OMS/WMS',
+      pimCpq: 'PIM/CPQ',
+      crm: 'CRM',
+      thirdPartySellers: 'Third-party Sellers',
+      legendNative: 'VTEX-native module',
+      legendAdmin: 'Admin & developer tooling',
+      legendThirdParty: 'Third-party / integration layer',
+      footerNote: 'VTEX Constellation — internal architecture reference · click any node to mark it discussed',
+      resetTitle: 'Reset diagram'
+    },
+    pt: {
+      salesChannel: 'Canal de Vendas',
+      vtexAdsPlatform: 'VTEX Ads Platform',
+      salesApp: 'Sales App',
+      digitalCommerce: 'Comércio Digital',
+      catalog: 'Catálogo',
+      pricing: 'Preços',
+      checkout: 'Checkout',
+      promotions: 'Promoções',
+      paymentGateway: 'Gateway de Pagamento',
+      channelManagement: 'Gestão de Canais',
+      b2bCommerce: 'Comércio B2B',
+      b2bOrganizations: 'Organizações B2B',
+      b2bQuotesCarts: 'Cotações e Carrinhos B2B',
+      quickOrder: 'Pedido Rápido',
+      b2bCheckout: 'Checkout B2B',
+      costCenters: 'Centros de Custo',
+      rolesPermissions: 'Papéis e Permissões',
+      experienceManagement: 'Gestão de Experiência',
+      headlessCms: 'CMS',
+      intelligentSearch: 'Busca Inteligente',
+      pwaApplication: 'Aplicação PWA',
+      storefrontApplication: 'Aplicação de Storefront',
+      distributedOrderMgmt: 'Gestão de Pedidos',
+      inventoryManagement: 'Gestão de Estoque',
+      orderAllocation: 'Alocação de Pedidos',
+      deliveryPromise: 'Delivery Promise',
+      logistics: 'Logística',
+      marketplaceManagement: 'Gestão de Marketplace',
+      sellerManagement: 'Gestão de Sellers',
+      offerQualityManagement: 'Qualidade e Gestão de Ofertas',
+      marketplaceNetwork: 'Rede de Marketplace',
+      vtexCxPlatform: 'VTEX CX Platform',
+      vtexDataPipeline: 'VTEX Data Pipeline',
+      vtexShield: 'VTEX Shield',
+      thirdPartyMarketplaces: 'Marketplaces de Terceiros',
+      admin: 'Admin',
+      dashboardAnalytics: 'Dashboard e Analytics',
+      releases: 'Releases',
+      userAccountMgmt: 'Usuários e Contas',
+      extensionsHub: 'Hub de Extensões',
+      developerTooling: 'Ferramentas de Desenvolvimento',
+      storefrontPlatform: 'Plataforma de Storefront',
+      apis: 'APIs',
+      masterdataMgmt: 'Master Data',
+      appPlatform: 'Plataforma de Apps',
+      otherChannels: 'Outros Canais',
+      searchPersonalization: 'Busca e Personalização',
+      marketingAnalytics: 'Marketing e Analytics',
+      payments: 'Pagamentos',
+      carriers: 'Transportadoras',
+      erp: 'ERP',
+      omsWms: 'OMS/WMS',
+      pimCpq: 'PIM/CPQ',
+      crm: 'CRM',
+      thirdPartySellers: 'Sellers de Terceiros',
+      legendNative: 'Módulo nativo VTEX',
+      legendAdmin: 'Admin e ferramentas de dev.',
+      legendThirdParty: 'Terceiros / camada de integração',
+      footerNote: 'VTEX Constellation — referência interna de arquitetura · clique no nó para marcar como discutido',
+      resetTitle: 'Redefinir diagrama'
+    }
+  };
+
+  function applyLang(lang){
+    var dict = I18N[lang] || I18N.en;
+    document.documentElement.lang = lang === 'pt' ? 'pt-BR' : 'en';
+    document.querySelectorAll('[data-i18n]').forEach(function(el){
+      var key = el.getAttribute('data-i18n');
+      if (!dict[key]) return;
+      // some labels sit on the node itself, which also holds its policy wash
+      // layer — keep that layer when swapping the text.
+      var wash = el.querySelector('.policy-wash');
+      el.textContent = dict[key];
+      if (wash) el.insertBefore(wash, el.firstChild);
+    });
+    document.querySelectorAll('[data-i18n-title]').forEach(function(el){
+      var key = el.getAttribute('data-i18n-title');
+      if (dict[key]) el.setAttribute('title', dict[key]);
+    });
+    document.querySelectorAll('.lang-btn').forEach(function(btn){
+      var on = btn.getAttribute('data-lang') === lang;
+      btn.classList.toggle('is-on', on);
+      btn.setAttribute('aria-pressed', on ? 'true' : 'false');
+    });
+    // Mercado Livre is PT-only — hide and clear it when switching to English.
+    document.querySelectorAll('.policy-toggle[data-lang-only]').forEach(function(toggle){
+      var only = toggle.getAttribute('data-lang-only');
+      var visible = only === lang;
+      toggle.classList.toggle('is-lang-hidden', !visible);
+      if (!visible && toggle.classList.contains('is-on')){
+        toggle.classList.remove('is-on');
+        var key = toggle.getAttribute('data-policy');
+        if (typeof activePolicies !== 'undefined'){
+          activePolicies[key] = false;
+          if (typeof updateAllWash === 'function') updateAllWash();
+        }
+      }
+    });
+    if (typeof fit === 'function') fit();
+  }
+
+  document.querySelectorAll('.lang-btn').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      applyLang(btn.getAttribute('data-lang'));
+    });
+  });
+
   var discussNodes = document.querySelectorAll('.chip, .tool, .stack-tile');
   discussNodes.forEach(function(el){
     el.addEventListener('click', function(){
       el.classList.toggle('is-active');
+    });
+  });
+
+  function toggleSectionBoxes(boxes){
+    if (!boxes.length) return;
+    var allOn = Array.prototype.every.call(boxes, function(el){ return el.classList.contains('is-active'); });
+    Array.prototype.forEach.call(boxes, function(el){
+      el.classList.toggle('is-active', !allOn);
+    });
+  }
+
+  document.querySelectorAll('.pillar h3').forEach(function(title){
+    title.addEventListener('click', function(){
+      var chips = title.parentElement.querySelectorAll('.chip');
+      toggleSectionBoxes(chips);
+    });
+  });
+
+  document.querySelectorAll('.admin-dev .section-label').forEach(function(title){
+    title.addEventListener('click', function(){
+      var tools = title.parentElement.querySelectorAll('.tool');
+      toggleSectionBoxes(tools);
     });
   });
 
@@ -468,8 +684,12 @@
     var nativeW = slide.offsetWidth;
     var nativeH = slide.offsetHeight;
     var containerW = viewport.clientWidth;
-    var scale = containerW / nativeW;
-    slide.style.transform = 'scale(' + scale + ')';
+    // also bound by the height still visible below the viewport's top edge,
+    // so a short window shrinks the slide instead of clipping its last row.
+    var availH = window.innerHeight - viewport.getBoundingClientRect().top;
+    var scale = Math.min(containerW / nativeW, availH / nativeH);
+    var offsetX = Math.max(0, (containerW - nativeW * scale) / 2);
+    slide.style.transform = 'translateX(' + offsetX + 'px) scale(' + scale + ')';
     viewport.style.height = Math.ceil(nativeH * scale) + 'px';
   }
   window.addEventListener('resize', fit);
@@ -603,3 +823,5 @@
   }
 })();
 </script>
+</body>
+</html>
