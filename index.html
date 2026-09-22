@@ -40,11 +40,13 @@
   }
 
   /* ---------- fixed-proportion slide canvas, scaled to fit any container ---------- */
-  #slide-viewport{position:relative; width:100%; overflow:hidden; background:var(--void);}
+  #slide-viewport{position:relative; z-index:1; width:100%; overflow:hidden;}
   #slide{position:relative; width:1500px; transform-origin:top left;}
 
-  /* ---------- static backdrop (no motion) ---------- */
-  .cosmos{position:absolute; inset:0; z-index:0; overflow:hidden; pointer-events:none;}
+  /* ---------- static backdrop (no motion) ----------
+     lives outside the scaled slide so it always covers the whole window,
+     instead of shrinking with the slide and baring the edges. */
+  .cosmos{position:fixed; inset:0; z-index:0; overflow:hidden; pointer-events:none;}
   .cosmos::before{
     content:"";
     position:absolute; inset:-10%;
@@ -62,7 +64,7 @@
   .aurora{position:absolute; border-radius:50%; filter:blur(90px); opacity:.35; mix-blend-mode:screen;}
   .aurora.a1{width:760px; height:760px; left:-220px; top:-260px; background:radial-gradient(circle, var(--pink) 0%, rgba(247,25,99,0) 68%);}
   .aurora.a2{width:640px; height:640px; right:-180px; top:110px; background:radial-gradient(circle, var(--blue) 0%, rgba(61,87,201,0) 68%);}
-  .aurora.a3{width:560px; height:560px; left:600px; bottom:-300px; background:radial-gradient(circle, var(--pink-soft) 0%, rgba(255,92,149,0) 70%); opacity:.22;}
+  .aurora.a3{width:560px; height:560px; left:40%; bottom:-300px; background:radial-gradient(circle, var(--pink-soft) 0%, rgba(255,92,149,0) 70%); opacity:.22;}
   .vignette{position:absolute; inset:0; background:radial-gradient(ellipse at 50% 25%, transparent 45%, rgba(2,2,6,.6) 100%);}
 
   /* ---------- page shell ---------- */
@@ -259,14 +261,15 @@
 </style>
 </head>
 <body>
-<div id="slide-viewport">
-<div id="slide">
 <div class="cosmos">
   <div class="aurora a1"></div>
   <div class="aurora a2"></div>
   <div class="aurora a3"></div>
   <div class="vignette"></div>
 </div>
+
+<div id="slide-viewport">
+<div id="slide">
 
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
 <defs>
