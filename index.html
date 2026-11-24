@@ -10,19 +10,25 @@
   :root{
     --void:#0a0e18;         /* deep backdrop, Big Stone family */
     --panel:#151f31;        /* VTEX "Big Stone" navy, sampled from product UI */
-    --pink:#F71963;         /* VTEX brand pink/rose */
+    --pink:#F71963;         /* VTEX brand pink/rose: native VTEX modules */
     --pink-soft:#ff5c95;
     --blue:#3d57c9;         /* VTEX admin/dev-tooling blue, sampled from product UI */
     --blue-soft:#7c93ea;
+    --violet:#822B6B;       /* paid add-ons: muted plum (same wash treatment as native pink) */
+    --violet-soft:#d07bb8;
     --mist:#eef0fb;
     --steel:#8a92b8;
     --steel-dim:#565d80;
     --glass:rgba(238,240,251,0.05);
     --glass-line:rgba(238,240,251,0.14);
-    --pol-b2b:#f5a623;      /* commercial policy: B2B */
-    --pol-b2c:#2dd4bf;      /* commercial policy: B2C */
-    --pol-meli:#ffe600;     /* commercial policy: Mercado Livre (brand yellow) */
-    --pol-whatsapp:#25d366; /* commercial policy: WhatsApp (brand green) */
+    /* sales channels: drawn from the VTEX brand palette (brand guidelines, 2026) */
+    --pol-b2c:#2ED47A;          /* Vibrant Green */
+    --pol-b2b:#FFC20E;          /* Marigold Yellow */
+    --pol-pos:#FF6622;          /* Sunset Orange */
+    --pol-punchout:#00D2D3;     /* Electric Teal */
+    --pol-multibrand:#1B5BE4;   /* Cobalt Blue */
+    --pol-multicountry:#FFC4DD; /* Bubble Gum Pink */
+    --fs-block:13px;            /* one font size for every module block */
     --font-display:'Bricolage Grotesque', 'Segoe UI', system-ui, sans-serif;
     --font-body:'IBM Plex Sans', 'Segoe UI', system-ui, sans-serif;
     --font-mono:'IBM Plex Mono', 'SFMono-Regular', Consolas, monospace;
@@ -127,85 +133,145 @@
   /* ---------- info glyph (matches source diagram's info icons) ---------- */
   .info-dot{width:13px; height:13px; color:var(--steel-dim); flex:none; opacity:.8;}
 
+  /* small secondary line under a label (one size everywhere) */
+  .sub{font-family:var(--font-body); font-size:10.5px; font-weight:400; color:var(--steel); line-height:1.25; letter-spacing:.01em;}
+
   /* =========================================================
-     ROW A — rails (Sales App / Ads Platform | core | satellites)
+     BLOCK ASSEMBLY — the diagram is built like stacked blocks (Lego / Tetris).
+     Four zones, each with its own colour, packed tight with one small gap:
+       VTEX core (pink) · paid add-ons (purple, both sides) ·
+       admin + developer tooling (blue) · partners and integrations (grey)
+     Inside the core, pillars are blocks and modules are blocks inside them.
      ========================================================= */
-  .row-a{display:flex; gap:16px; align-items:stretch; margin-top:20px;}
+  :root{ --box-h:56px; --box-r:12px; --g:8px; --zone-gap:10px; }
 
-  .rail{flex:0 0 168px; display:flex; flex-direction:column; gap:14px;}
+  .board{
+    display:grid; grid-template-columns:15fr 70fr 15fr; grid-template-rows:auto auto;
+    gap:var(--zone-gap); margin-top:20px; align-items:stretch;
+  }
+
+  /* ---------- zone shell ---------- */
+  .zone{position:relative; border-radius:18px;}
+
+  /* ---------- paid add-ons: left and right columns, full height, no frame ---------- */
+  .zone-addons{grid-row:1 / span 2; display:flex; flex-direction:column; gap:var(--g);}
+  .zone-addons.is-left{grid-column:1;}
+  .zone-addons.is-right{grid-column:3;}
+
   .rail-tile{
-    padding:14px 14px; display:flex; align-items:center; gap:10px;
+    flex:1; min-height:var(--box-h); border-radius:var(--box-r);
+    padding:0 12px; display:flex; align-items:center; gap:9px;
   }
-  .rail-tile .icon-wrap{
-    width:32px; height:32px; border-radius:9px; flex:none;
-    background:rgba(255,92,149,.12); border:1px solid rgba(255,92,149,.28);
-    display:flex; align-items:center; justify-content:center;
+  .rail-tile .icon-wrap{flex:none; display:flex; align-items:center; justify-content:center;}
+  .rail-tile svg{width:17px; height:17px; color:var(--violet-soft);}
+  .rail-tile .label{display:flex; flex-direction:column; gap:2px; min-width:0;}
+  .rail-tile .name{font-family:var(--font-body); font-weight:500; font-size:var(--fs-block); color:var(--mist); line-height:1.2;}
+  .rail-tile.is-addon{border-color:rgba(208,123,184,.32); background:linear-gradient(155deg, rgba(130,43,107,.28), rgba(130,43,107,.13));}
+
+  /* the two big add-ons (VTEX CX Platform, VTEX Ads): taller blocks, icon on top */
+  .rail-tile.is-big{
+    flex-direction:column; justify-content:center; text-align:center; gap:14px;
+    border-color:rgba(208,123,184,.32);
+    background:linear-gradient(155deg, rgba(130,43,107,.28), rgba(130,43,107,.13));
+    box-shadow:none;
   }
-  .rail-tile.is-blue .icon-wrap{background:rgba(61,87,201,.16); border-color:rgba(124,147,234,.32);}
-  .rail-tile svg{width:16px; height:16px; color:var(--pink-soft);}
-  .rail-tile.is-blue svg{color:var(--blue-soft);}
-  .rail-tile .name{font-family:var(--font-body); font-weight:600; font-size:13px; color:var(--mist); line-height:1.28;}
+  .rail-tile.is-big .icon-wrap{width:56px; height:56px; border-radius:16px; background:rgba(130,43,107,.32); border:1px solid rgba(208,123,184,.32);}
+  .rail-tile.is-big svg{width:28px; height:28px; color:#f3d9ea;}
+  .rail-tile.is-big .label{align-items:center;}
 
-  #satApp,#satAds,#satPipeline,#satShield,#satCX{flex:1;}
+  .rail-tile.has-popup{cursor:pointer; transition:transform .15s ease, box-shadow .15s ease;}
+  .rail-tile.has-popup:hover{transform:translateY(-2px); box-shadow:0 8px 18px -8px rgba(130,43,107,.6);}
 
-  .core{flex:1; padding:20px 20px 22px; border-color:rgba(255,92,149,.3); display:flex;}
-  .core-grid{display:grid; grid-template-columns:1fr 1fr; gap:16px; flex:1;}
-  .core-col{display:flex; flex-direction:column; gap:16px;}
-  .pillar{flex:1; display:flex; flex-direction:column;}
+  /* the box a popup is anchored to */
+  .has-popup.is-open{box-shadow:0 0 0 1px rgba(238,240,251,.55), 0 0 24px rgba(238,240,251,.22) !important;}
+  .is-addon.has-popup.is-open{box-shadow:0 0 0 1px rgba(208,123,184,.7), 0 0 24px rgba(130,43,107,.5) !important;}
 
+  /* "click for more" hint on boxes that open a popup */
+  .popup-hint{
+    position:absolute; top:7px; right:7px; width:7px; height:7px; border-radius:50%;
+    background:var(--steel); opacity:.7; pointer-events:none;
+  }
+  .is-addon .popup-hint{background:var(--violet-soft);}
+  .popup-hint::after{content:""; position:absolute; inset:-3px; border-radius:50%; border:1px solid currentColor; opacity:.35; color:var(--steel);}
+  .is-addon .popup-hint::after{color:var(--violet-soft);}
+
+  /* ---------- VTEX core (the hero) ---------- */
+  .core{grid-column:2; grid-row:1;}
+  .core-grid{display:grid; grid-template-columns:1fr 1fr; gap:var(--zone-gap); height:100%;}
+
+  /* a pillar is a block inside the core; its modules are blocks inside it */
+  .pillar{
+    display:flex; flex-direction:column; padding:12px 12px 12px; border-radius:14px;
+    background:rgba(7,17,39,.34); border:1px solid rgba(255,92,149,.2);
+  }
+  .pillar.is-wide{grid-column:1 / -1;}
+  .pillar:not(.is-wide){align-self:stretch;}
   .pillar h3{
-    font-family:var(--font-body); font-weight:600; font-size:13px; color:var(--mist);
-    margin:0 0 11px; display:flex; align-items:center; gap:6px;
+    font-family:var(--font-body); font-weight:600; font-size:var(--fs-block); color:var(--mist);
+    margin:0 0 10px; display:flex; align-items:center; gap:6px;
     cursor:pointer; user-select:none;
   }
-  .chips{display:grid; gap:8px; flex:1; grid-auto-rows:1fr;}
-  .chips.cols-3{grid-template-columns:repeat(3,1fr);}
-  .chips.cols-4{grid-template-columns:repeat(4,1fr);}
+  .chips{display:grid; grid-auto-rows:var(--box-h); gap:var(--g); flex:1;}
+  .chips.c3{grid-template-columns:repeat(3,1fr);}
+  .chips.c2{grid-template-columns:repeat(2,1fr);}
+  .chips.c4{grid-template-columns:repeat(4,1fr);}
+  .chips .span-all{grid-column:1 / -1;}
   .chip{
-    font-family:var(--font-body); font-size:12px; font-weight:500; color:var(--mist); text-align:center;
+    font-family:var(--font-body); font-size:var(--fs-block); font-weight:500; color:var(--mist); text-align:center; line-height:1.25;
     display:flex; align-items:center; justify-content:center;
-    padding:11px 8px; border-radius:9px; cursor:pointer; user-select:none;
-    background:linear-gradient(155deg, rgba(247,25,99,.26), rgba(247,25,99,.12));
-    border:1px solid rgba(255,92,149,.3);
+    padding:6px 10px; border-radius:var(--box-r); cursor:pointer; user-select:none;
+    background:linear-gradient(155deg, rgba(247,25,99,.28), rgba(247,25,99,.13));
+    border:1px solid rgba(255,92,149,.32);
     transition:transform .15s ease, box-shadow .15s ease, background .15s ease;
   }
   .chip:hover{transform:translateY(-2px); box-shadow:0 8px 18px -8px rgba(247,25,99,.5);}
   .chip.is-active{background:linear-gradient(155deg, rgba(255,92,149,.5), rgba(61,87,201,.28)); box-shadow:0 0 0 1px rgba(255,92,149,.6), 0 0 14px rgba(255,92,149,.35);}
 
   /* =========================================================
-     ROW B — Third-party Marketplaces | Admin+Dev box | Other Channels
+     ADMIN + DEVELOPER TOOLING — a blue zone stacked under the core
      ========================================================= */
-  .row-b{display:flex; gap:16px; align-items:stretch; margin-top:16px;}
-  .rail-b{flex:0 0 168px; display:flex;}
-  .rail-b .rail-tile{flex:1;}
-
-  .admin-dev{flex:1; display:flex; padding:0;}
-  .admin-dev .section{flex:1; display:flex; align-items:center; gap:16px; padding:16px 20px;}
-  .admin-dev .divider{width:1px; background:var(--glass-line); margin:14px 0;}
-  .section-label{flex:0 0 128px; display:flex; align-items:center; gap:6px; font-family:var(--font-body); font-weight:600; font-size:14px; color:var(--mist); line-height:1.2; cursor:pointer; user-select:none;}
-  .section-chips{flex:1; display:grid; grid-template-columns:repeat(4,1fr); gap:9px;}
+  .admin-dev{
+    grid-column:2; grid-row:2;
+    display:grid; grid-template-columns:1fr 1fr; gap:var(--zone-gap);
+  }
+  .admin-dev .section{
+    display:flex; flex-direction:column; padding:12px; border-radius:14px;
+    background:rgba(7,17,39,.34); border:1px solid rgba(124,147,234,.2);
+  }
+  .section-label{display:flex; align-items:center; gap:6px; margin:0 0 10px; font-family:var(--font-body); font-weight:600; font-size:var(--fs-block); color:var(--mist); line-height:1.25; cursor:pointer; user-select:none;}
+  /* 5 tools fill the block with no gaps: 3 on the first row, 2 wider on the second */
+  .section-chips{display:grid; grid-template-columns:repeat(6,1fr); grid-auto-rows:var(--box-h); gap:var(--g); flex:1;}
+  .section-chips .tool{grid-column:span 2;}
+  .section-chips .tool:nth-child(n+4){grid-column:span 3;}
   .tool{
-    display:flex; flex-direction:column; align-items:flex-start; justify-content:center; gap:8px; padding:11px 12px; border-radius:11px;
-    background:rgba(61,87,201,.14); border:1px solid rgba(124,147,234,.3);
-    font-size:12px; font-weight:500; color:var(--mist); cursor:pointer; text-align:left;
+    display:grid; grid-template-columns:auto 1fr; column-gap:8px; align-content:center; align-items:center;
+    padding:0 12px; border-radius:var(--box-r);
+    background:rgba(61,87,201,.2); border:1px solid rgba(124,147,234,.38);
+    font-size:var(--fs-block); font-weight:500; color:var(--mist); cursor:pointer; text-align:left;
     transition:transform .15s ease, box-shadow .15s ease;
   }
-  .tool svg{width:15px; height:15px; color:var(--blue-soft); flex:none;}
+  .tool svg{grid-row:1 / span 2; align-self:center; width:17px; height:17px; color:var(--blue-soft);}
+  .tool .name{grid-column:2; line-height:1.2;}
+  .tool .sub{grid-column:2; margin-top:2px;}
   .tool:hover{transform:translateY(-2px); box-shadow:0 8px 16px -8px rgba(61,87,201,.5);}
   .tool.featured{box-shadow:0 0 0 1px rgba(238,240,251,.55), 0 0 12px rgba(238,240,251,.25);}
   .tool.is-active{box-shadow:0 0 0 1px var(--pink-soft), 0 0 12px rgba(255,92,149,.4);}
 
   /* =========================================================
-     ROW C — full-width integration shelf (9 stacked tiles)
+     PARTNERS + INTEGRATIONS — grey zone, full width
      ========================================================= */
-  .row-c{margin-top:16px; display:grid; grid-template-columns:repeat(9,1fr); gap:10px;}
+  .glass.row-c{
+    margin-top:var(--zone-gap); padding:12px;
+    display:grid; grid-template-columns:repeat(9,1fr); gap:var(--g);
+  }
   .stack-tile{
-    padding:11px 8px 10px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:7px; text-align:center; min-height:76px;
+    height:var(--box-h); border-radius:var(--box-r); padding:0 12px;
+    display:flex; flex-direction:row; align-items:center; justify-content:flex-start; gap:9px; text-align:left;
     cursor:pointer; transition:transform .15s ease, box-shadow .15s ease, border-color .15s ease;
   }
-  .stack-tile .icon-wrap{width:28px; height:28px; border-radius:8px; background:rgba(238,240,251,.06); border:1px solid var(--glass-line); display:flex; align-items:center; justify-content:center;}
-  .stack-tile svg{width:15px; height:15px; color:var(--steel);}
-  .stack-tile .name{font-family:var(--font-body); font-size:11.5px; font-weight:500; color:var(--mist); line-height:1.25;}
+  .stack-tile .icon-wrap{flex:none; display:flex; align-items:center; justify-content:center;}
+  .stack-tile svg{width:17px; height:17px; color:var(--steel);}
+  .stack-tile .name{font-family:var(--font-body); font-size:var(--fs-block); font-weight:500; color:var(--mist); line-height:1.2;}
   .stack-tile:hover{transform:translateY(-2px); border-color:rgba(255,92,149,.35);}
   .stack-tile.is-active{border-color:rgba(255,92,149,.55); box-shadow:0 0 12px rgba(255,92,149,.3);}
   .stack-tile.is-active svg{color:var(--pink-soft);}
@@ -218,7 +284,7 @@
   .foot small{font-family:var(--font-mono); font-size:11px; color:var(--steel-dim); letter-spacing:.03em;}
 
   /* =========================================================
-     COMMERCIAL POLICIES — toggle bar, light-beams, split rings
+     SALES CHANNELS — toggle bar and tinted-glass wash
      ========================================================= */
   .policy-bar{
     display:flex; align-items:center; gap:18px; flex-wrap:wrap;
@@ -244,16 +310,88 @@
     background:linear-gradient(rgba(238,240,251,.02), rgba(238,240,251,.02)), color-mix(in srgb, var(--pc) 20%, rgba(20,22,34,.6));
     box-shadow:0 0 0 1px var(--pc), 0 0 18px color-mix(in srgb, var(--pc) 55%, transparent);
   }
-  .policy-toggle.is-lang-hidden{display:none;}
 
   /* every diagram node gets a tinted-glass wash layer; JS sets its background
-     (one policy color, or a smooth blend of several) and fades it in/out.
+     (one channel color, or a smooth blend of several) and fades it in/out.
      isolation:isolate scopes the wash's negative z-index to just this node,
      so it sits above the node's own background but stays behind its icon/text. */
   .policy-anchor{position:relative; isolation:isolate;}
   .policy-wash{
     position:absolute; inset:0; z-index:-1; border-radius:inherit;
     opacity:0; pointer-events:none; transition:opacity .5s ease, background .5s ease;
+  }
+
+  /* =========================================================
+     POPOVER — small liquid-glass bubble that unfolds from the box you click
+     (partner logos, add-on description, Sales App video).
+     Lives inside the scaled slide so it keeps the diagram's proportions; no page dimming.
+     ========================================================= */
+  .pop{
+    --accent-glow:rgba(238,240,251,.18);
+    --clip-closed:inset(0 0 100% 0 round 22px);
+    --ox:50%; --oy:0%;
+    position:absolute; left:0; top:0; z-index:50; width:max-content; max-width:300px;
+    border-radius:22px; visibility:hidden; pointer-events:none;
+    background:
+      radial-gradient(120% 90% at 18% 0%, rgba(255,255,255,.26), rgba(255,255,255,0) 55%),
+      linear-gradient(150deg, rgba(238,240,251,.17), rgba(238,240,251,.06) 60%, rgba(238,240,251,.11));
+    -webkit-backdrop-filter:blur(26px) saturate(180%); backdrop-filter:blur(26px) saturate(180%);
+    border:1px solid rgba(238,240,251,.3);
+    box-shadow:
+      inset 0 1px 0 rgba(255,255,255,.45),
+      inset 0 -14px 26px -18px rgba(255,255,255,.2),
+      0 24px 50px -18px rgba(0,0,0,.7),
+      0 0 46px -10px var(--accent-glow);
+    transform-origin:var(--ox) var(--oy);
+    transform:scale(.7); opacity:0; clip-path:var(--clip-closed);
+    transition:
+      transform .6s cubic-bezier(.2,1.15,.3,1),
+      clip-path .55s cubic-bezier(.22,1,.36,1),
+      opacity .25s ease,
+      visibility 0s linear .6s;
+  }
+  .pop.is-open{
+    visibility:visible; pointer-events:auto; transform:scale(1); opacity:1; clip-path:inset(-40px round 22px);
+    transition:
+      transform .6s cubic-bezier(.2,1.15,.3,1),
+      clip-path .6s cubic-bezier(.22,1,.36,1),
+      opacity .25s ease,
+      visibility 0s;
+  }
+  .pop.is-addon{--accent-glow:rgba(130,43,107,.6);}
+  .pop.is-video{--accent-glow:rgba(247,25,99,.5);}
+  .pop-inner{padding:16px 18px;}
+  .pop-inner > *{animation:pop-rise .5s cubic-bezier(.22,1,.36,1) both; animation-delay:calc(.12s + var(--i,0) * 70ms);}
+  @keyframes pop-rise{
+    from{opacity:0; transform:translateY(-6px); filter:blur(5px);}
+    to{opacity:1; transform:none; filter:blur(0);}
+  }
+  .pop-text{width:236px; font-family:var(--font-body); font-size:13.5px; line-height:1.5; color:var(--mist);}
+  .pop-tag{
+    display:inline-block; margin-bottom:9px; padding:2px 8px; border-radius:999px;
+    font-family:var(--font-mono); font-size:10px; letter-spacing:.09em; text-transform:uppercase;
+    color:#f3d9ea; background:rgba(130,43,107,.3); border:1px solid rgba(208,123,184,.4);
+  }
+  .logo-grid{display:grid; grid-template-columns:repeat(2,76px); gap:8px;}
+  .logo-cell{
+    height:50px; border-radius:13px; display:flex; align-items:center; justify-content:center; padding:10px;
+    background:rgba(238,240,251,.09); border:1px solid rgba(238,240,251,.16);
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.2);
+  }
+  .logo-cell img{max-width:74%; max-height:24px; filter:invert(1); opacity:.95;}
+  .video-box{
+    aspect-ratio:16/9; width:290px; border-radius:14px; overflow:hidden;
+    background:linear-gradient(155deg, rgba(247,25,99,.2), rgba(21,31,49,.55));
+    border:1px dashed rgba(255,92,149,.45);
+    display:flex; flex-direction:column; align-items:center; justify-content:center; gap:10px;
+    font-family:var(--font-mono); font-size:11px; letter-spacing:.06em; color:var(--mist);
+  }
+  .video-box video{width:100%; height:100%; object-fit:cover; background:#000;}
+  .video-box .play{width:44px; height:44px; border-radius:50%; background:rgba(247,25,99,.3); border:1px solid rgba(255,92,149,.6); display:flex; align-items:center; justify-content:center;}
+  .video-box .play svg{width:18px; height:18px; color:#ffd1e1;}
+  @media (prefers-reduced-motion: reduce){
+    .pop, .pop.is-open{transition:opacity .15s ease;}
+    .pop-inner > *{animation:none;}
   }
 
   /* the canvas above is fixed-size and scaled to fit via JS (#slide-viewport/#slide),
@@ -297,6 +435,8 @@
   <symbol id="i-stack" viewBox="0 0 24 24"><path d="M12 3l9 5-9 5-9-5 9-5z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M3 13l9 5 9-5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></symbol>
   <symbol id="i-window" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2" fill="none" stroke="currentColor" stroke-width="1.6"/><line x1="3" y1="9.4" x2="21" y2="9.4" stroke="currentColor" stroke-width="1.6"/><circle cx="6.2" cy="7.2" r="0.7" fill="currentColor" stroke="none"/><circle cx="8.6" cy="7.2" r="0.7" fill="currentColor" stroke="none"/></symbol>
   <symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9.2" fill="none" stroke="currentColor" stroke-width="1.6"/><line x1="12" y1="11" x2="12" y2="16.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><circle cx="12" cy="7.6" r="1.1" fill="currentColor" stroke="none"/></symbol>
+  <symbol id="i-spark" viewBox="0 0 24 24"><path d="M10 4l1.9 5.1L17 11l-5.1 1.9L10 18l-1.9-5.1L3 11l5.1-1.9L10 4z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M18 3v4M16 5h4M18.5 15v4M16.5 17h4" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></symbol>
+  <symbol id="i-play" viewBox="0 0 24 24"><path d="M8 5l11 7-11 7V5z" fill="currentColor" stroke="none"/></symbol>
 </defs>
 </svg>
 
@@ -320,141 +460,160 @@
   <div class="policy-bar glass">
     <span class="label" data-i18n="salesChannel">Sales Channel</span>
     <div class="policy-toggles">
-      <div class="policy-toggle" id="polToggle-b2b" data-policy="b2b" style="--pc:var(--pol-b2b)">
-        <span class="dot"></span>B2B
-      </div>
       <div class="policy-toggle" id="polToggle-b2c" data-policy="b2c" style="--pc:var(--pol-b2c)">
-        <span class="dot"></span>B2C
+        <span class="dot"></span><span>B2C</span>
       </div>
-      <div class="policy-toggle is-lang-hidden" id="polToggle-meli" data-policy="meli" data-lang-only="pt" style="--pc:var(--pol-meli)">
-        <span class="dot"></span>Mercado Livre
+      <div class="policy-toggle" id="polToggle-b2b" data-policy="b2b" style="--pc:var(--pol-b2b)">
+        <span class="dot"></span><span>B2B</span>
       </div>
-      <div class="policy-toggle" id="polToggle-whatsapp" data-policy="whatsapp" style="--pc:var(--pol-whatsapp)">
-        <span class="dot"></span>WhatsApp
+      <div class="policy-toggle" id="polToggle-pos" data-policy="pos" style="--pc:var(--pol-pos)">
+        <span class="dot"></span><span data-i18n="polPos">POS (In-store)</span>
+      </div>
+      <div class="policy-toggle" id="polToggle-punchout" data-policy="punchout" style="--pc:var(--pol-punchout)">
+        <span class="dot"></span><span>PunchOut</span>
+      </div>
+      <div class="policy-toggle" id="polToggle-multibrand" data-policy="multibrand" style="--pc:var(--pol-multibrand)">
+        <span class="dot"></span><span data-i18n="polMultiBrand">Multi-brand</span>
+      </div>
+      <div class="policy-toggle" id="polToggle-multicountry" data-policy="multicountry" data-i18n-title="polMultiCountryTip" title="Includes multiple languages" style="--pc:var(--pol-multicountry)">
+        <span class="dot"></span><span data-i18n="polMultiCountry">Multi-country</span>
       </div>
     </div>
   </div>
 
-  <!-- ROW A -->
-  <div class="row-a">
+  <!-- BOARD: add-ons (left) | VTEX core + tooling (centre) | add-ons (right) — one block assembly -->
+  <div class="board">
 
-    <div class="rail">
-      <div class="glass rail-tile" id="satAds" data-node="vtex-ads-platform">
-        <div class="icon-wrap"><svg><use href="#i-megaphone"/></svg></div>
-        <div class="name" data-i18n="vtexAdsPlatform">VTEX Ads Platform</div>
-      </div>
-      <div class="glass rail-tile" id="satApp" data-node="sales-app">
-        <div class="icon-wrap"><svg><use href="#i-store"/></svg></div>
-        <div class="name" data-i18n="salesApp">Sales App</div>
-      </div>
-    </div>
-
-    <div class="glass core">
-      <div class="core-grid">
-        <div class="core-col">
-          <div class="pillar">
-            <h3><svg class="info-dot"><use href="#i-info"/></svg><span data-i18n="digitalCommerce">Digital Commerce</span></h3>
-            <div class="chips cols-3">
-              <div class="chip" data-node="catalog" data-i18n="catalog">Catalog</div><div class="chip" data-node="pricing" data-i18n="pricing">Pricing</div><div class="chip" data-node="checkout" data-i18n="checkout">Checkout</div>
-              <div class="chip" data-node="promotions" data-i18n="promotions">Promotions</div><div class="chip" data-node="payment-gateway" data-i18n="paymentGateway">Payment Gateway</div><div class="chip" data-node="channel-management" data-i18n="channelManagement">Channel Management</div>
-            </div>
-          </div>
-          <div class="pillar">
-            <h3><svg class="info-dot"><use href="#i-info"/></svg><span data-i18n="b2bCommerce">B2B Commerce</span></h3>
-            <div class="chips cols-3">
-              <div class="chip" data-node="b2b-organizations" data-i18n="b2bOrganizations">B2B Organizations</div><div class="chip" data-node="b2b-quotes-carts" data-i18n="b2bQuotesCarts">B2B Quotes &amp; Carts</div><div class="chip" data-node="quick-order" data-i18n="quickOrder">Quick Order</div>
-              <div class="chip" data-node="b2b-checkout" data-i18n="b2bCheckout">B2B Checkout</div><div class="chip" data-node="cost-centers" data-i18n="costCenters">Cost Centers</div><div class="chip" data-node="roles-permissions" data-i18n="rolesPermissions">Roles and Permissions</div>
-            </div>
-          </div>
-        </div>
-        <div class="core-col">
-          <div class="pillar">
-            <h3><svg class="info-dot"><use href="#i-info"/></svg><span data-i18n="experienceManagement">Experience Management</span></h3>
-            <div class="chips cols-4">
-              <div class="chip" data-node="headless-cms" data-i18n="headlessCms">CMS</div><div class="chip" data-node="intelligent-search" data-i18n="intelligentSearch">Intelligent Search</div>
-              <div class="chip" data-node="pwa-application" data-i18n="pwaApplication">PWA Application</div><div class="chip" data-node="storefront-application" data-i18n="storefrontApplication">Storefront Application</div>
-            </div>
-          </div>
-          <div class="pillar">
-            <h3><svg class="info-dot"><use href="#i-info"/></svg><span data-i18n="distributedOrderMgmt">Distributed Order Mgmt</span></h3>
-            <div class="chips cols-4">
-              <div class="chip" data-node="inventory-management" data-i18n="inventoryManagement">Inventory Management</div><div class="chip" data-node="order-allocation" data-i18n="orderAllocation">Order Allocation</div>
-              <div class="chip" data-node="delivery-promise" data-i18n="deliveryPromise">Delivery Promise</div><div class="chip" data-node="logistics" data-i18n="logistics">Logistics</div>
-            </div>
-          </div>
-          <div class="pillar">
-            <h3><svg class="info-dot"><use href="#i-info"/></svg><span data-i18n="marketplaceManagement">Marketplace Management</span></h3>
-            <div class="chips cols-3">
-              <div class="chip" data-node="seller-management" data-i18n="sellerManagement">Seller Management</div><div class="chip" data-node="offer-quality-management" data-i18n="offerQualityManagement">Offer Quality &amp; Management</div>
-              <div class="chip" data-node="marketplace-network" data-i18n="marketplaceNetwork">Marketplace Network</div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div class="rail">
-      <div class="glass rail-tile is-blue" id="satCX" data-node="vtex-cx-platform">
+    <!-- left add-ons: the two big ones (VTEX CX Platform first, then VTEX Ads) -->
+    <div class="zone-addons is-left">
+      <div class="glass rail-tile is-addon is-big has-popup" id="satCX" data-node="vtex-cx-platform" data-popup="addon">
         <div class="icon-wrap"><svg><use href="#i-chat"/></svg></div>
-        <div class="name" data-i18n="vtexCxPlatform">VTEX CX Platform</div>
+        <div class="label"><div class="name" data-i18n="vtexCxPlatform">VTEX CX Platform</div></div>
       </div>
-      <div class="glass rail-tile is-blue" id="satPipeline" data-node="vtex-data-pipeline">
+      <div class="glass rail-tile is-addon is-big has-popup" data-node="vtex-ads" data-popup="addon">
+        <div class="icon-wrap"><svg><use href="#i-megaphone"/></svg></div>
+        <div class="label"><div class="name" data-i18n="vtexAds">VTEX Ads</div><div class="sub" data-i18n="vtexAdsSub">AI Campaign Management</div></div>
+      </div>
+    </div>
+
+    <!-- VTEX core -->
+    <div class="zone core">
+      <div class="core-grid">
+        <div class="pillar is-wide">
+          <h3><svg class="info-dot"><use href="#i-info"/></svg><span data-i18n="experienceManagement">Experience Management</span></h3>
+          <div class="chips c4">
+            <div class="chip" data-node="headless-cms"><span data-i18n="headlessCms">CMS</span></div>
+            <div class="chip" data-node="intelligent-search"><span data-i18n="intelligentSearch">Intelligent Search</span></div>
+            <div class="chip" data-node="storefront"><span data-i18n="storefront">Storefront</span></div>
+            <div class="chip" data-node="ai-personal-shopper"><span data-i18n="aiPersonalShopper">AI Personal Shopper</span></div>
+          </div>
+        </div>
+        <div class="pillar">
+          <h3><svg class="info-dot"><use href="#i-info"/></svg><span data-i18n="digitalCommerce">Digital Commerce</span></h3>
+          <div class="chips c3">
+            <div class="chip" data-node="catalog"><span data-i18n="catalog">Catalog</span></div>
+            <div class="chip" data-node="pricing"><span data-i18n="pricing">Pricing</span></div>
+            <div class="chip" data-node="checkout"><span data-i18n="checkout">Checkout</span></div>
+            <div class="chip" data-node="promotions"><span data-i18n="promotions">Promotions</span></div>
+            <div class="chip" data-node="payment-gateway"><span data-i18n="paymentGateway">Payment Gateway</span></div>
+            <div class="chip" data-node="channel-management"><span data-i18n="channelManagement">Channel Management</span></div>
+          </div>
+        </div>
+        <div class="pillar">
+          <h3><svg class="info-dot"><use href="#i-info"/></svg><span data-i18n="distributedOrderMgmt">Distributed Order Mgmt</span></h3>
+          <div class="chips c2">
+            <div class="chip" data-node="inventory-management"><span data-i18n="inventoryManagement">Inventory Management</span></div>
+            <div class="chip" data-node="order-allocation"><span data-i18n="orderAllocation">Order Allocation</span></div>
+            <div class="chip" data-node="delivery-promise"><span data-i18n="deliveryPromise">Delivery Promise</span></div>
+            <div class="chip" data-node="logistics"><span data-i18n="logistics">Logistics</span></div>
+          </div>
+        </div>
+        <div class="pillar">
+          <h3><svg class="info-dot"><use href="#i-info"/></svg><span data-i18n="b2bCommerce">B2B Commerce</span></h3>
+          <div class="chips c3">
+            <div class="chip" data-node="hierarchical-orgs"><span data-i18n="hierarchicalOrgs">Hierarchical Organizations</span></div>
+            <div class="chip" data-node="budgets"><span data-i18n="budgets">Budgets</span></div>
+            <div class="chip" data-node="buying-policies"><span data-i18n="buyingPolicies">Buying Policies</span></div>
+            <div class="chip" data-node="contract-pricing"><span data-i18n="contractPricing">Contract Pricing &amp; Assortment</span></div>
+            <div class="chip" data-node="ai-quick-order"><span data-i18n="aiQuickOrder">AI Quick Order</span></div>
+            <div class="chip" data-node="quotes-carts"><span data-i18n="quotesCarts">AI Quotes &amp; Carts</span></div>
+          </div>
+        </div>
+        <div class="pillar">
+          <h3><svg class="info-dot"><use href="#i-info"/></svg><span data-i18n="marketplaceManagement">Marketplace Management</span></h3>
+          <div class="chips c2">
+            <div class="chip" data-node="seller-management"><span data-i18n="sellerManagement">Seller Management</span></div>
+            <div class="chip" data-node="offer-quality-management"><span data-i18n="offerQualityManagement">Offer Quality &amp; Management</span></div>
+            <div class="chip span-all" data-node="marketplace-network"><span data-i18n="marketplaceNetwork">Marketplace Network &amp; Protocol</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- right add-ons    <!-- right add-ons: all the others -->
+    <div class="zone-addons is-right">
+      <div class="glass rail-tile is-addon has-popup" id="satPipeline" data-node="vtex-data-pipeline" data-popup="addon">
         <div class="icon-wrap"><svg><use href="#i-database"/></svg></div>
-        <div class="name" data-i18n="vtexDataPipeline">VTEX Data Pipeline</div>
+        <div class="label"><div class="name" data-i18n="vtexDataPipeline">Data Pipeline</div></div>
       </div>
-      <div class="glass rail-tile is-blue" id="satShield" data-node="vtex-shield">
-        <div class="icon-wrap"><svg><use href="#i-shield"/></svg></div>
-        <div class="name" data-i18n="vtexShield">VTEX Shield</div>
+      <div class="glass rail-tile is-addon has-popup" data-node="semantic-search" data-popup="addon">
+        <div class="icon-wrap"><svg><use href="#i-search"/></svg></div>
+        <div class="label"><div class="name" data-i18n="semanticSearch">Semantic Search</div></div>
       </div>
-    </div>
-
-  </div>
-
-  <!-- ROW B -->
-  <div class="row-b">
-    <div class="rail-b">
-      <div class="glass rail-tile" data-node="third-party-marketplaces">
+      <div class="glass rail-tile is-addon has-popup" data-node="hyper-personalization" data-popup="addon">
+        <div class="icon-wrap"><svg><use href="#i-user"/></svg></div>
+        <div class="label"><div class="name" data-i18n="hyperPersonalization">Hyper-personalization</div></div>
+      </div>
+      <div class="glass rail-tile is-addon has-popup" data-node="recommendation-shelves" data-popup="addon">
         <div class="icon-wrap"><svg><use href="#i-grid"/></svg></div>
-        <div class="name" data-i18n="thirdPartyMarketplaces">Third-party Marketplaces</div>
+        <div class="label"><div class="name" data-i18n="recommendationShelves">Recommendation Shelves</div></div>
+      </div>
+      <div class="glass rail-tile is-addon has-popup" id="satApp" data-node="sales-app" data-popup="video">
+        <div class="icon-wrap"><svg><use href="#i-store"/></svg></div>
+        <div class="label"><div class="name" data-i18n="salesApp">Sales App</div></div>
+      </div>
+      <div class="glass rail-tile is-addon has-popup" id="satUcp" data-node="google-ucp" data-popup="addon">
+        <div class="icon-wrap"><svg><use href="#i-plug"/></svg></div>
+        <div class="label"><div class="name" data-i18n="googleUcp">Google UCP</div><div class="sub" data-i18n="googleUcpSub">U.S.</div></div>
+      </div>
+      <div class="glass rail-tile is-addon has-popup" id="satShield" data-node="vtex-shield" data-popup="addon">
+        <div class="icon-wrap"><svg><use href="#i-shield"/></svg></div>
+        <div class="label"><div class="name" data-i18n="vtexShield">VTEX Shield</div></div>
       </div>
     </div>
 
-    <div class="glass admin-dev">
+    <!-- admin + developer tooling: a blue block stacked under the core -->
+    <div class="zone admin-dev">
       <div class="section">
         <div class="section-label"><svg class="info-dot"><use href="#i-info"/></svg><span data-i18n="admin">Admin</span></div>
         <div class="section-chips">
           <div class="tool" data-node="dashboard-analytics"><svg><use href="#i-dashboard"/></svg><span class="name" data-i18n="dashboardAnalytics">Dashboard &amp; Analytics</span></div>
           <div class="tool" data-node="releases"><svg><use href="#i-refresh"/></svg><span class="name" data-i18n="releases">Releases</span></div>
           <div class="tool" data-node="user-account-mgmt"><svg><use href="#i-keyuser"/></svg><span class="name" data-i18n="userAccountMgmt">User &amp; Account Mgmt.</span></div>
+          <div class="tool" data-node="ai-workspace"><svg><use href="#i-spark"/></svg><span class="name" data-i18n="aiWorkspace">VTEX AI Workspace</span></div>
           <div class="tool featured" data-node="extensions-hub"><svg><use href="#i-plug"/></svg><span class="name" data-i18n="extensionsHub">Extensions Hub</span></div>
         </div>
       </div>
-      <div class="divider"></div>
       <div class="section">
         <div class="section-label"><svg class="info-dot"><use href="#i-info"/></svg><span data-i18n="developerTooling">Developer Tooling</span></div>
         <div class="section-chips">
           <div class="tool" data-node="storefront-platform"><svg><use href="#i-cloud"/></svg><span class="name" data-i18n="storefrontPlatform">Storefront Platform</span></div>
           <div class="tool" data-node="apis"><svg><use href="#i-api"/></svg><span class="name" data-i18n="apis">APIs</span></div>
-          <div class="tool" data-node="masterdata-mgmt"><svg><use href="#i-stack"/></svg><span class="name" data-i18n="masterdataMgmt">Masterdata Mgmt.</span></div>
+          <div class="tool" data-node="dbaas" title="Database as a Service" data-i18n-title="dbaasSub"><svg><use href="#i-stack"/></svg><span class="name" data-i18n="dbaas">DBaaS</span><span class="sub" data-i18n="dbaasSub">Database as a Service</span></div>
+          <div class="tool" data-node="ai-developer-toolkit"><svg><use href="#i-terminal"/></svg><span class="name" data-i18n="aiDevToolkit">VTEX AI Developer Toolkit</span></div>
           <div class="tool featured" data-node="app-platform"><svg><use href="#i-window"/></svg><span class="name" data-i18n="appPlatform">App Platform</span></div>
         </div>
       </div>
     </div>
 
-    <div class="rail-b">
-      <div class="glass rail-tile is-blue" data-node="other-channels">
-        <div class="icon-wrap"><svg><use href="#i-terminal"/></svg></div>
-        <div class="name" data-i18n="otherChannels">Other Channels</div>
-      </div>
-    </div>
   </div>
 
-  <!-- ROW C -->
-  <div class="row-c">
+  <!-- PARTNERS AND INTEGRATIONS (grey zone) -->
+  <div class="glass zone row-c">
     <div class="glass stack-tile" data-node="search-personalization"><div class="icon-wrap"><svg><use href="#i-search"/></svg></div><div class="name" data-i18n="searchPersonalization">Search &amp; Personalization</div></div>
     <div class="glass stack-tile" data-node="marketing-analytics"><div class="icon-wrap"><svg><use href="#i-bars"/></svg></div><div class="name" data-i18n="marketingAnalytics">Marketing &amp; Analytics</div></div>
-    <div class="glass stack-tile" data-node="payments"><div class="icon-wrap"><svg><use href="#i-card"/></svg></div><div class="name" data-i18n="payments">Payments</div></div>
-    <div class="glass stack-tile" data-node="carriers"><div class="icon-wrap"><svg><use href="#i-truck"/></svg></div><div class="name" data-i18n="carriers">Carriers</div></div>
+    <div class="glass stack-tile" data-node="payments" data-popup="logos"><div class="icon-wrap"><svg><use href="#i-card"/></svg></div><div class="name" data-i18n="payments">Payments</div></div>
+    <div class="glass stack-tile" data-node="carriers" data-popup="logos"><div class="icon-wrap"><svg><use href="#i-truck"/></svg></div><div class="name" data-i18n="carriers">Carriers</div></div>
     <div class="glass stack-tile" data-node="erp"><div class="icon-wrap"><svg><use href="#i-clipboard"/></svg></div><div class="name" data-i18n="erp">ERP</div></div>
     <div class="glass stack-tile" data-node="oms-wms"><div class="icon-wrap"><svg><use href="#i-box"/></svg></div><div class="name" data-i18n="omsWms">OMS/WMS</div></div>
     <div class="glass stack-tile" data-node="pim-cpq"><div class="icon-wrap"><svg><use href="#i-sitemap"/></svg></div><div class="name" data-i18n="pimCpq">PIM/CPQ</div></div>
@@ -464,25 +623,38 @@
 
   <div class="foot">
     <div class="legend">
-      <span><span class="swatch" style="background:var(--pink)"></span><span data-i18n="legendNative">VTEX-native module</span></span>
-      <span><span class="swatch" style="background:var(--blue)"></span><span data-i18n="legendAdmin">Admin &amp; developer tooling</span></span>
-      <span><span class="swatch" style="background:rgba(238,240,251,.3)"></span><span data-i18n="legendThirdParty">Third-party / integration layer</span></span>
+      <span><span class="swatch" style="background:var(--pink)"></span><span data-i18n="legendNative">Native VTEX module</span></span>
+      <span><span class="swatch" style="background:var(--violet)"></span><span data-i18n="legendAddon">Paid add-on</span></span>
+      <span><span class="swatch" style="background:var(--blue)"></span><span data-i18n="legendAdmin">Admin and developer tooling</span></span>
+      <span><span class="swatch" style="background:rgba(238,240,251,.3)"></span><span data-i18n="legendThirdParty">Partners and integrations</span></span>
     </div>
     <small data-i18n="footerNote">VTEX Constellation &mdash; internal architecture reference &middot; click any node to mark it discussed</small>
   </div>
 
 </main>
 
+<!-- popover: small liquid-glass bubble anchored to the clicked box (inside the slide, so it scales with it) -->
+<div class="pop" id="pop" role="dialog" aria-hidden="true"><div class="pop-inner" id="popInner"></div></div>
+
 </div><!-- #slide -->
 </div><!-- #slide-viewport -->
 
 <script>
 (function(){
+  // Sales App demo video: set this to a file path or URL (e.g. 'assets/sales-app-demo.mp4')
+  // and the popup will play it. Left empty, the popup shows a placeholder.
+  var SALES_APP_VIDEO = '';
+
   var I18N = {
     en: {
       salesChannel: 'Sales Channel',
-      vtexAdsPlatform: 'VTEX Ads Platform',
+      polPos: 'POS (In-store)',
+      polMultiBrand: 'Multi-brand',
+      polMultiCountry: 'Multi-country',
+      polMultiCountryTip: 'Includes multiple languages',
       salesApp: 'Sales App',
+      googleUcp: 'Google UCP',
+      googleUcpSub: 'U.S.',
       digitalCommerce: 'Digital Commerce',
       catalog: 'Catalog',
       pricing: 'Pricing',
@@ -491,17 +663,17 @@
       paymentGateway: 'Payment Gateway',
       channelManagement: 'Channel Management',
       b2bCommerce: 'B2B Commerce',
-      b2bOrganizations: 'B2B Organizations',
-      b2bQuotesCarts: 'B2B Quotes & Carts',
-      quickOrder: 'Quick Order',
-      b2bCheckout: 'B2B Checkout',
-      costCenters: 'Cost Centers',
-      rolesPermissions: 'Roles and Permissions',
+      hierarchicalOrgs: 'Hierarchical Organizations',
+      budgets: 'Budgets',
+      buyingPolicies: 'Buying Policies',
+      contractPricing: 'Contract Pricing & Assortment',
+      aiQuickOrder: 'AI Quick Order',
+      quotesCarts: 'AI Quotes & Carts',
       experienceManagement: 'Experience Management',
       headlessCms: 'CMS',
       intelligentSearch: 'Intelligent Search',
-      pwaApplication: 'PWA Application',
-      storefrontApplication: 'Storefront Application',
+      storefront: 'Storefront',
+      aiPersonalShopper: 'AI Personal Shopper',
       distributedOrderMgmt: 'Distributed Order Mgmt',
       inventoryManagement: 'Inventory Management',
       orderAllocation: 'Order Allocation',
@@ -510,22 +682,28 @@
       marketplaceManagement: 'Marketplace Management',
       sellerManagement: 'Seller Management',
       offerQualityManagement: 'Offer Quality & Management',
-      marketplaceNetwork: 'Marketplace Network',
+      marketplaceNetwork: 'Marketplace Network & Protocol',
+      vtexAds: 'VTEX Ads',
+      vtexAdsSub: 'AI Campaign Management',
       vtexCxPlatform: 'VTEX CX Platform',
-      vtexDataPipeline: 'VTEX Data Pipeline',
+      vtexDataPipeline: 'Data Pipeline',
+      semanticSearch: 'Semantic Search',
+      hyperPersonalization: 'Hyper-personalization',
+      recommendationShelves: 'Recommendation Shelves',
       vtexShield: 'VTEX Shield',
-      thirdPartyMarketplaces: 'Third-party Marketplaces',
       admin: 'Admin',
       dashboardAnalytics: 'Dashboard & Analytics',
       releases: 'Releases',
       userAccountMgmt: 'User & Account Mgmt.',
+      aiWorkspace: 'VTEX AI Workspace',
       extensionsHub: 'Extensions Hub',
       developerTooling: 'Developer Tooling',
       storefrontPlatform: 'Storefront Platform',
       apis: 'APIs',
-      masterdataMgmt: 'Masterdata Mgmt.',
+      dbaas: 'DBaaS',
+      dbaasSub: 'Database as a Service',
+      aiDevToolkit: 'VTEX AI Developer Toolkit',
       appPlatform: 'App Platform',
-      otherChannels: 'Other Channels',
       searchPersonalization: 'Search & Personalization',
       marketingAnalytics: 'Marketing & Analytics',
       payments: 'Payments',
@@ -535,16 +713,32 @@
       pimCpq: 'PIM/CPQ',
       crm: 'CRM',
       thirdPartySellers: 'Third-party Sellers',
-      legendNative: 'VTEX-native module',
-      legendAdmin: 'Admin & developer tooling',
-      legendThirdParty: 'Third-party / integration layer',
+      legendNative: 'Native VTEX module',
+      legendAddon: 'Paid add-on',
+      legendAdmin: 'Admin and developer tooling',
+      legendThirdParty: 'Partners and integrations',
       footerNote: 'VTEX Constellation — internal architecture reference · click any node to mark it discussed',
-      resetTitle: 'Reset diagram'
+      resetTitle: 'Reset diagram',
+      addonTag: 'Paid add-on',
+      videoPlaceholder: 'Demo video coming soon',
+      'desc:vtex-ads': 'Retail media platform to monetize onsite, offsite and in-store traffic, with AI Campaign Management. Turns your shopper traffic into a new revenue line.',
+      'desc:vtex-cx-platform': 'AI agents that guide discovery, purchase and post-sale support across web and messaging. Resolves more customer requests without adding headcount.',
+      'desc:vtex-data-pipeline': 'Streams your orders, inventory and pricing data straight to your data warehouse. Gives your teams full analytics access without custom integrations.',
+      'desc:semantic-search': 'Understands what shoppers mean, not just the words they type. Helps them find the right product faster.',
+      'desc:hyper-personalization': 'Tailors content, offers and product ranking to each shopper in real time. Makes every visit more relevant and increases conversion.',
+      'desc:recommendation-shelves': 'Ready-made product shelves such as "best sellers" and "you may also like". Drives cross-sell and a higher average order value.',
+      'desc:google-ucp': 'Lets shoppers discover and check out directly in Gemini and Google AI Mode, with native cart sync. Opens a new sales channel in the U.S.',
+      'desc:vtex-shield': 'Extra security layers for your store: Security Monitor, WAF, custom SSL and mTLS. Keeps the platform resilient and compliant.'
     },
     pt: {
       salesChannel: 'Canal de Vendas',
-      vtexAdsPlatform: 'VTEX Ads Platform',
+      polPos: 'PDV (Loja física)',
+      polMultiBrand: 'Multimarca',
+      polMultiCountry: 'Multipaís',
+      polMultiCountryTip: 'Inclui vários idiomas',
       salesApp: 'Sales App',
+      googleUcp: 'Google UCP',
+      googleUcpSub: 'EUA',
       digitalCommerce: 'Comércio Digital',
       catalog: 'Catálogo',
       pricing: 'Preços',
@@ -553,17 +747,17 @@
       paymentGateway: 'Gateway de Pagamento',
       channelManagement: 'Gestão de Canais',
       b2bCommerce: 'Comércio B2B',
-      b2bOrganizations: 'Organizações B2B',
-      b2bQuotesCarts: 'Cotações e Carrinhos B2B',
-      quickOrder: 'Pedido Rápido',
-      b2bCheckout: 'Checkout B2B',
-      costCenters: 'Centros de Custo',
-      rolesPermissions: 'Papéis e Permissões',
+      hierarchicalOrgs: 'Organizações Hierárquicas',
+      budgets: 'Orçamentos',
+      buyingPolicies: 'Políticas de Compra',
+      contractPricing: 'Preços e Sortimento por Contrato',
+      aiQuickOrder: 'Pedido Rápido com IA',
+      quotesCarts: 'Cotações e Carrinhos com IA',
       experienceManagement: 'Gestão de Experiência',
       headlessCms: 'CMS',
       intelligentSearch: 'Busca Inteligente',
-      pwaApplication: 'Aplicação PWA',
-      storefrontApplication: 'Aplicação de Storefront',
+      storefront: 'Storefront',
+      aiPersonalShopper: 'AI Personal Shopper',
       distributedOrderMgmt: 'Gestão de Pedidos',
       inventoryManagement: 'Gestão de Estoque',
       orderAllocation: 'Alocação de Pedidos',
@@ -572,22 +766,28 @@
       marketplaceManagement: 'Gestão de Marketplace',
       sellerManagement: 'Gestão de Sellers',
       offerQualityManagement: 'Qualidade e Gestão de Ofertas',
-      marketplaceNetwork: 'Rede de Marketplace',
+      marketplaceNetwork: 'Rede e Protocolo de Marketplace',
+      vtexAds: 'VTEX Ads',
+      vtexAdsSub: 'Gestão de Campanhas com IA',
       vtexCxPlatform: 'VTEX CX Platform',
-      vtexDataPipeline: 'VTEX Data Pipeline',
+      vtexDataPipeline: 'Data Pipeline',
+      semanticSearch: 'Busca Semântica',
+      hyperPersonalization: 'Hiper-personalização',
+      recommendationShelves: 'Vitrines de Recomendação',
       vtexShield: 'VTEX Shield',
-      thirdPartyMarketplaces: 'Marketplaces de Terceiros',
       admin: 'Admin',
       dashboardAnalytics: 'Dashboard e Analytics',
       releases: 'Releases',
       userAccountMgmt: 'Usuários e Contas',
+      aiWorkspace: 'VTEX AI Workspace',
       extensionsHub: 'Hub de Extensões',
       developerTooling: 'Ferramentas de Desenvolvimento',
       storefrontPlatform: 'Plataforma de Storefront',
       apis: 'APIs',
-      masterdataMgmt: 'Master Data',
+      dbaas: 'DBaaS',
+      dbaasSub: 'Banco de Dados como Serviço',
+      aiDevToolkit: 'VTEX AI Developer Toolkit',
       appPlatform: 'Plataforma de Apps',
-      otherChannels: 'Outros Canais',
       searchPersonalization: 'Busca e Personalização',
       marketingAnalytics: 'Marketing e Analytics',
       payments: 'Pagamentos',
@@ -598,16 +798,42 @@
       crm: 'CRM',
       thirdPartySellers: 'Sellers de Terceiros',
       legendNative: 'Módulo nativo VTEX',
+      legendAddon: 'Add-on pago',
       legendAdmin: 'Admin e ferramentas de dev.',
-      legendThirdParty: 'Terceiros / camada de integração',
+      legendThirdParty: 'Parceiros e integrações',
       footerNote: 'VTEX Constellation — referência interna de arquitetura · clique no nó para marcar como discutido',
-      resetTitle: 'Redefinir diagrama'
+      resetTitle: 'Redefinir diagrama',
+      addonTag: 'Add-on pago',
+      videoPlaceholder: 'Vídeo de demonstração em breve',
+      'desc:vtex-ads': 'Plataforma de retail media para monetizar o tráfego onsite, offsite e em loja, com gestão de campanhas por IA. Transforma o tráfego dos seus clientes em uma nova linha de receita.',
+      'desc:vtex-cx-platform': 'Agentes de IA que guiam a descoberta, a compra e o pós-venda na web e em canais de mensagem. Resolve mais solicitações sem aumentar a equipe.',
+      'desc:vtex-data-pipeline': 'Envia seus dados de pedidos, estoque e preços direto para o seu data warehouse. Dá acesso completo a analytics sem integrações sob medida.',
+      'desc:semantic-search': 'Entende o que o cliente quer dizer, não só as palavras digitadas. Ajuda a encontrar o produto certo mais rápido.',
+      'desc:hyper-personalization': 'Adapta conteúdo, ofertas e ordenação de produtos a cada cliente em tempo real. Torna cada visita mais relevante e aumenta a conversão.',
+      'desc:recommendation-shelves': 'Vitrines prontas como "mais vendidos" e "você também pode gostar". Impulsiona o cross-sell e um ticket médio maior.',
+      'desc:google-ucp': 'Permite descobrir e finalizar a compra direto no Gemini e no Google AI Mode, com sincronização nativa do carrinho. Abre um novo canal de vendas nos EUA.',
+      'desc:vtex-shield': 'Camadas extras de segurança para a sua loja: Security Monitor, WAF, SSL personalizado e mTLS. Mantém a plataforma resiliente e em conformidade.'
     }
   };
 
+  // partner logos shown in the integration popups (files in assets/logos/)
+  var LOGOS = {
+    'payments':   [['PayPal','paypal'], ['Stripe','stripe'], ['Adyen','adyen'], ['Klarna','klarna']],
+    'carriers':   [['UPS','ups'], ['FedEx','fedex'], ['DHL','dhl'], ['USPS','usps']]
+  };
+
+  var currentLang = 'en';
+  var openSlug = null;
+
+  function t(key){
+    var dict = I18N[currentLang] || I18N.en;
+    return dict[key] || I18N.en[key] || '';
+  }
+
   function applyLang(lang){
-    var dict = I18N[lang] || I18N.en;
-    document.documentElement.lang = lang === 'pt' ? 'pt-BR' : 'en';
+    currentLang = I18N[lang] ? lang : 'en';
+    var dict = I18N[currentLang];
+    document.documentElement.lang = currentLang === 'pt' ? 'pt-BR' : 'en';
     document.querySelectorAll('[data-i18n]').forEach(function(el){
       var key = el.getAttribute('data-i18n');
       if (!dict[key]) return;
@@ -622,25 +848,12 @@
       if (dict[key]) el.setAttribute('title', dict[key]);
     });
     document.querySelectorAll('.lang-btn').forEach(function(btn){
-      var on = btn.getAttribute('data-lang') === lang;
+      var on = btn.getAttribute('data-lang') === currentLang;
       btn.classList.toggle('is-on', on);
       btn.setAttribute('aria-pressed', on ? 'true' : 'false');
     });
-    // Mercado Livre is PT-only — hide and clear it when switching to English.
-    document.querySelectorAll('.policy-toggle[data-lang-only]').forEach(function(toggle){
-      var only = toggle.getAttribute('data-lang-only');
-      var visible = only === lang;
-      toggle.classList.toggle('is-lang-hidden', !visible);
-      if (!visible && toggle.classList.contains('is-on')){
-        toggle.classList.remove('is-on');
-        var key = toggle.getAttribute('data-policy');
-        if (typeof activePolicies !== 'undefined'){
-          activePolicies[key] = false;
-          if (typeof updateAllWash === 'function') updateAllWash();
-        }
-      }
-    });
     if (typeof fit === 'function') fit();
+    if (openSlug && typeof refreshPopup === 'function') refreshPopup();
   }
 
   document.querySelectorAll('.lang-btn').forEach(function(btn){
@@ -649,6 +862,9 @@
     });
   });
 
+  // ---------------------------------------------------------
+  // "discussed" marks — core modules, tooling and integration tiles
+  // ---------------------------------------------------------
   var discussNodes = document.querySelectorAll('.chip, .tool, .stack-tile');
   discussNodes.forEach(function(el){
     el.addEventListener('click', function(){
@@ -678,7 +894,7 @@
     });
   });
 
-  // scale the fixed 1920px slide canvas to fit whatever width it's given,
+  // scale the fixed-width slide canvas to fit whatever width it's given,
   // so the whole diagram always reads as one horizontal-slide shape (no reflow).
   var viewport = document.getElementById('slide-viewport');
   var slide = document.getElementById('slide');
@@ -701,33 +917,165 @@
   setTimeout(fit, 300); // safety pass once web fonts/layout settle
 
   // =========================================================
-  // COMMERCIAL POLICIES — tinted-glass wash, staggered reveal
+  // POPOVERS — only integration boxes, paid add-ons and Sales App.
+  // A small liquid-glass bubble unfolds from the clicked box; the page
+  // is never dimmed. Core native modules stay static.
   // =========================================================
-  // Digital Commerce is the shared core every commercial policy runs on top
-  // of, so every policy lights the full Digital Commerce pillar, plus its
+  var pop = document.getElementById('pop');
+  var popInner = document.getElementById('popInner');
+  var anchorEl = null;
+  var GAP = 12, MARGIN = 10;
+
+  var CLIP_CLOSED = {
+    bottom: 'inset(0 0 100% 0 round 22px)',  // sits below its box: unfolds downward
+    top:    'inset(100% 0 0 0 round 22px)',  // sits above: unfolds upward
+    left:   'inset(0 0 0 100% round 22px)',  // sits left of its box: unfolds leftward
+    right:  'inset(0 100% 0 0 round 22px)'   // sits right of its box: unfolds rightward
+  };
+
+  function esc(s){
+    return String(s).replace(/[&<>"]/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; });
+  }
+
+  function popContent(el){
+    var slug = el.getAttribute('data-node');
+    var kind = el.getAttribute('data-popup');
+    pop.classList.toggle('is-addon', kind === 'addon');
+    pop.classList.toggle('is-video', kind === 'video');
+    if (kind === 'logos'){
+      return '<div class="logo-grid">' + (LOGOS[slug] || []).map(function(l, i){
+        return '<div class="logo-cell" style="--i:' + i + '"><img src="assets/logos/' + l[1] + '.svg" alt="' + esc(l[0]) + '" title="' + esc(l[0]) + '"></div>';
+      }).join('') + '</div>';
+    }
+    if (kind === 'addon'){
+      return '<div class="pop-text"><span class="pop-tag" style="--i:0">' + esc(t('addonTag')) + '</span><div style="--i:1">' + esc(t('desc:' + slug)) + '</div></div>';
+    }
+    // video (Sales App)
+    return SALES_APP_VIDEO
+      ? '<div class="video-box" style="--i:0"><video controls playsinline src="' + esc(SALES_APP_VIDEO) + '"></video></div>'
+      : '<div class="video-box" style="--i:0"><div class="play"><svg><use href="#i-play"/></svg></div><span>' + esc(t('videoPlaceholder')) + '</span></div>';
+  }
+
+  // put the bubble next to its box, on the side with the most room, and
+  // make it grow out of the box (transform-origin = the box's centre).
+  function placePop(el){
+    // work in slide coordinates (the slide is scaled to fit the window)
+    var sr = slide.getBoundingClientRect();
+    var k = (sr.width / slide.offsetWidth) || 1;
+    var rr = el.getBoundingClientRect();
+    var r = {
+      left: (rr.left - sr.left) / k, top: (rr.top - sr.top) / k,
+      right: (rr.right - sr.left) / k, bottom: (rr.bottom - sr.top) / k
+    };
+    var vw = slide.offsetWidth, vh = slide.offsetHeight;
+    var w = pop.offsetWidth, h = pop.offsetHeight;
+    var cx = (r.left + r.right) / 2, cy = (r.top + r.bottom) / 2;
+    var side;
+    if (cx > vw * 0.72 && r.left - w - GAP > MARGIN) side = 'left';
+    else if (cx < vw * 0.28 && r.right + w + GAP < vw - MARGIN) side = 'right';
+    else if (cy > vh * 0.55 && r.top - h - GAP > MARGIN) side = 'top';
+    else if (r.bottom + h + GAP < vh - MARGIN) side = 'bottom';
+    else side = (r.top - h - GAP > MARGIN) ? 'top' : 'bottom';
+
+    var x, y;
+    if (side === 'left'){ x = r.left - w - GAP; y = cy - h / 2; }
+    else if (side === 'right'){ x = r.right + GAP; y = cy - h / 2; }
+    else if (side === 'top'){ x = cx - w / 2; y = r.top - h - GAP; }
+    else { x = cx - w / 2; y = r.bottom + GAP; }
+    x = Math.max(MARGIN, Math.min(x, vw - w - MARGIN));
+    y = Math.max(MARGIN, Math.min(y, vh - h - MARGIN));
+
+    pop.style.left = x + 'px';
+    pop.style.top = y + 'px';
+    pop.style.setProperty('--ox', (cx - x) + 'px');
+    pop.style.setProperty('--oy', (cy - y) + 'px');
+    pop.style.setProperty('--clip-closed', CLIP_CLOSED[side]);
+  }
+
+  function openPopup(el){
+    if (anchorEl && anchorEl !== el) anchorEl.classList.remove('is-open');
+    anchorEl = el;
+    openSlug = el.getAttribute('data-node');
+    popInner.innerHTML = popContent(el);
+    // measure and place while still closed, then open on the next frame so the unfold animates
+    pop.classList.remove('is-open');
+    placePop(el);
+    el.classList.add('is-open');
+    pop.setAttribute('aria-hidden', 'false');
+    requestAnimationFrame(function(){
+      requestAnimationFrame(function(){ if (anchorEl === el) pop.classList.add('is-open'); });
+    });
+  }
+
+  function closePopup(){
+    if (anchorEl) anchorEl.classList.remove('is-open');
+    anchorEl = null;
+    openSlug = null;
+    pop.classList.remove('is-open');
+    pop.setAttribute('aria-hidden', 'true');
+    // let the fold-away animation finish before clearing (also stops any playing video)
+    setTimeout(function(){ if (!openSlug) popInner.innerHTML = ''; }, 650);
+  }
+
+  // language switch while open: re-render in place
+  function refreshPopup(){
+    if (!anchorEl) return;
+    popInner.innerHTML = popContent(anchorEl);
+    placePop(anchorEl);
+  }
+
+  document.querySelectorAll('[data-popup]').forEach(function(el){
+    var hint = document.createElement('i');
+    hint.className = 'popup-hint';
+    el.appendChild(hint);
+    el.addEventListener('click', function(){
+      if (anchorEl === el){ closePopup(); } else { openPopup(el); }
+    });
+  });
+  // click anywhere else, or press Esc, to fold it away
+  document.addEventListener('click', function(e){
+    if (!openSlug) return;
+    if (pop.contains(e.target) || (e.target.closest && e.target.closest('[data-popup]'))) return;
+    closePopup();
+  });
+  document.addEventListener('keydown', function(e){
+    if (e.key === 'Escape' && openSlug) closePopup();
+  });
+
+  // =========================================================
+  // SALES CHANNELS — tinted-glass wash, staggered reveal
+  // =========================================================
+  // Digital Commerce is the shared core every sales channel runs on top
+  // of, so every channel lights the full Digital Commerce pillar, plus its
   // own specific modules.
   var DIGITAL_COMMERCE_CORE = ['catalog','pricing','checkout','promotions','payment-gateway','channel-management'];
-  // Outbound marketplace: checkout and payment run on the external channel, not in VTEX.
-  var DIGITAL_COMMERCE_MARKETPLACE = ['catalog','pricing','promotions','channel-management'];
   var POLICIES = {
-    b2b: {
-      color: 'var(--pol-b2b)',
-      nodes: DIGITAL_COMMERCE_CORE.concat(['b2b-organizations','b2b-quotes-carts','quick-order','b2b-checkout','cost-centers','roles-permissions'])
-    },
     b2c: {
       color: 'var(--pol-b2c)',
-      nodes: DIGITAL_COMMERCE_CORE.concat(['storefront-application','intelligent-search'])
+      nodes: DIGITAL_COMMERCE_CORE.concat(['storefront','intelligent-search','ai-personal-shopper'])
     },
-    meli: {
-      color: 'var(--pol-meli)',
-      nodes: DIGITAL_COMMERCE_MARKETPLACE.concat(['marketplace-network','seller-management','offer-quality-management','order-allocation'])
+    b2b: {
+      color: 'var(--pol-b2b)',
+      nodes: DIGITAL_COMMERCE_CORE.concat(['hierarchical-orgs','budgets','buying-policies','contract-pricing','ai-quick-order','quotes-carts'])
     },
-    whatsapp: {
-      color: 'var(--pol-whatsapp)',
-      nodes: DIGITAL_COMMERCE_CORE.concat(['sales-app','vtex-cx-platform','other-channels'])
+    pos: {
+      color: 'var(--pol-pos)',
+      nodes: DIGITAL_COMMERCE_CORE.concat(['sales-app','inventory-management','order-allocation'])
+    },
+    punchout: {
+      color: 'var(--pol-punchout)',
+      nodes: DIGITAL_COMMERCE_CORE.concat(['hierarchical-orgs','budgets','buying-policies','contract-pricing','erp'])
+    },
+    multibrand: {
+      color: 'var(--pol-multibrand)',
+      nodes: DIGITAL_COMMERCE_CORE.concat(['headless-cms','storefront'])
+    },
+    multicountry: {
+      color: 'var(--pol-multicountry)',
+      nodes: DIGITAL_COMMERCE_CORE.concat(['headless-cms','storefront','payments','carriers'])
     }
   };
-  var POLICY_ORDER = ['b2b','b2c','meli','whatsapp'];
+  var POLICY_ORDER = ['b2c','b2b','pos','punchout','multibrand','multicountry'];
   var activePolicies = {};
   var reduceMotion = !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
 
@@ -741,7 +1089,7 @@
     nodeEls[el.getAttribute('data-node')] = { el: el, wash: wash };
   });
 
-  // a node touched by one active policy gets a soft tint of that policy's
+  // a node touched by one active channel gets a soft tint of that channel's
   // color; touched by several, the colors blend into one smooth gradient —
   // the glass itself changes color, like light shining through it, rather
   // than an outline drawn around it.
@@ -775,9 +1123,9 @@
     Object.keys(nodeEls).forEach(updateNodeWash);
   }
 
-  var LIGHT_MS = 900; // total time for one policy's modules to finish lighting up
+  var LIGHT_MS = 900; // total time for one channel's modules to finish lighting up
 
-  // no drawn line anymore — just the glass itself lighting up, in reading
+  // no drawn line — just the glass itself lighting up, in reading
   // order (top-to-bottom, left-to-right), one module after another.
   function lightUpFor(key){
     var stops = POLICIES[key].nodes
@@ -808,7 +1156,7 @@
     });
   });
 
-  // refresh/reset: clear every active sales channel and every "discussed" mark
+  // refresh/reset: clear every active sales channel, every "discussed" mark and any open popup
   var refreshBtn = document.getElementById('hudRefresh');
   if (refreshBtn){
     refreshBtn.addEventListener('click', function(){
@@ -822,6 +1170,7 @@
       });
       updateAllWash();
       discussNodes.forEach(function(el){ el.classList.remove('is-active'); });
+      closePopup();
     });
   }
 })();
